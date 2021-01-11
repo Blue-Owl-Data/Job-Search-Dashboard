@@ -67,3 +67,4 @@ All files are reproducible and available for download and use.
 
 [Christopher Logan Ortiz](https://github.com/Promeos)
 
+![image](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png "image") 
