@@ -4,7 +4,7 @@
 
 
 
-<img src="https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png" alt="owly" style="height: 100px; width:100px;"/>
+<img src="https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png" alt="owly" style="height: 50px; width:50px;"/>
 
 
 
