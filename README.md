@@ -2,7 +2,7 @@
 
 <h2 align = "center"> <b> Welcome! We are Blue Owl Data! </b> </h2>
 
-![image](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png "image")
+![image](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png "image") 
 
 
 ## About This Project 
