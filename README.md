@@ -1,13 +1,6 @@
 ![Header](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/Blue_Owl_Data_Banner.png "Header")
 
- <h2 align = "center"> <b> Welcome! We are Blue Owl Data! </b> </h2> ![image](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png "image") {: style="float: left"}
-
-
-
-<img src="https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png" alt="owly" style="height: 50px; width:50px;"/>
-
-
-
+ <h2 align = "center"> <b> Welcome! We are Blue Owl Data! </b></h2>
 
 ## About This Project 
 - Our team has come together to create a useful tool for job seakers. 
