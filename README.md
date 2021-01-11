@@ -1,7 +1,11 @@
 ![Header](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/Blue_Owl_Data_Banner.png "Header")
 
-<h2 align = "center"> <b> Welcome! We are Blue Owl Data &#129417; </b>
+<h2 align = "center"> <b> Welcome! We are Blue Owl Data (https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png)</b>
 </h2>
+
+
+https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png
+
 
 ## About This Project 
 - Our team has come together to create a useful tool for job seakers. 
