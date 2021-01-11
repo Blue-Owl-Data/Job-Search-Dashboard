@@ -11,10 +11,10 @@
 
 
 ## Deliverables
+- Dashboard
+- Website
 - MVP Notebook
 - Final Notebook
-- Website
-- Dashboard
 
 ## Project Management 
 - Trello Board
