@@ -1,12 +1,12 @@
-[![Header]( "Header")]
+[![Header](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/Blue_Owl_Data_Banner.png "Header")]
 
 <h2 align = "center"> <b> Welcome! We are Blue Owl Data &#129417; </b>
 </h2>
 
-# About This Project 
-### Our team has come together to create a useful tool for job seakers. 
+## About This Project 
+- Our team has come together to create a useful tool for job seakers. 
 
-# Goal
+## Goal
 - Create a job listing dashboard with top 5 skills for sought after jobs.
 
 
@@ -43,7 +43,6 @@
 - Baseline
 - Test Models
 - Final Model
-
 	
 ### 5. Conclusion
 - Key Findings
