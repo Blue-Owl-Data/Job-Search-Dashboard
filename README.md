@@ -17,6 +17,7 @@
 ## Project Management 
 - [Trello Board](https://trello.com/b/aIjJQDws/job-search-dashboard-project) 
 - [Standup Report](https://docs.google.com/document/d/10fup2CegPnZIZr5TiK308BVzFJEVpYihP8LVvaAvrbs/edit?usp=sharing)
+- [Knowledge Share](https://docs.google.com/document/d/1hVwjnndIhap56pXYI2Krh_1BR72Do2LWXSOY1XU7wUQ/edit?usp=sharing)
 
 ## Data Dictionary
 | Feature Name                | Description                                                   |
