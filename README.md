@@ -15,7 +15,7 @@
 - Final Notebook
 
 ## Project Management 
-- Trello Board
+- [Trello Board](https://trello.com/b/aIjJQDws/job-search-dashboard-project) 
 
 ## Data Dictionary
 | Feature Name                | Description                                                   |
