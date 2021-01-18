@@ -100,3 +100,16 @@ def job_cards_indeed(soup):
     # Extract all job cards
     job_cards = tag.find_all('div', class_='jobsearch-SerpJobCard')
     return job_cards
+
+def job_titles_indeed(job_cards):
+    '''
+    This function extract the job titles from a job_cards set. 
+    '''
+    # Create a list to hold the job titles
+    titles = []
+    # For Loop throught the job cards to extract the titles
+    for job in job_cards:
+        title = job.find('h2', class_='title')
+        title = title.text.strip()
+        titles.append(title)
+    return titles
