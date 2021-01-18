@@ -153,3 +153,18 @@ def job_links_indeed(job_cards):
         link = link.replace(';', '&')
         links.append(link)
     return links
+
+def job_locations_indeed(job_cards):
+    '''
+    This function pulls the job locations from a set of job cards.
+    '''
+    # Create a list to hold the locations
+    locations = []
+    # For loop through the job cards to pull the locations
+    for job in job_cards:
+        location = job.find('div', class_='location accessible-contrast-color-location')
+        if location == None:
+            location = job.find('span', class_='location accessible-contrast-color-location')
+        location = location.text.strip()
+        locations.append(location)
+    return locations
