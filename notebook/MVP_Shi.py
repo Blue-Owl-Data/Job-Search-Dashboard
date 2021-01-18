@@ -7,9 +7,12 @@ import requests
 from bs4 import BeautifulSoup
 import urllib
 
+# Regex Library
+import re
+
 from tqdm.notebook import tqdm
 
-def fisrt_page_url_indeed(job_title, location):
+def first_page_url_indeed(job_title, location):
     '''
     This function returns a URL of a job search at Indeed.com 
     based on the job title and the location.
@@ -30,7 +33,7 @@ def first_page_soup_indeed(job_title, location):
     the content of a request for job searching at Indeed.com
     '''
     # Generate the URL of the job search based on title and location
-    url = fisrt_page_url_indeed(job_title, location)
+    url = first_page_url_indeed(job_title, location)
     # Make the HTTP request
     response = requests.get(url)
     # Print the status code of the request
@@ -43,20 +46,22 @@ def first_page_soup_indeed(job_title, location):
     print("Title of the response: ", soup.title.string)
     return soup
 
-def extract_jobcards_indeed(job_title, location):
+def num_jobs_indeed(first_page_soup):
     '''
+    This function returns the total number of the jobs in the searching result.
     '''
-    # Generate the URL of the job search based on title and location
-    url = url_indeed(job_title, location)
-    # Make the HTTP request
-    response = requests.get(url)
-    # Print the status code
-    print("Status Code: ", response.status_code)
-    # Sanity check to make sure the document type is HTML
-    print(response.text[:100])
-    # Make a soup to hold the response content
-    soup = BeautifulSoup(response.content, "html.parser")
-    # Print out the title
-    print("Soup Title: ", soup.title.string)
-    
-    return soup
+    # Find out the section contains total number of jobs  
+    div = first_page_soup.find('div', id='searchCountPages')
+    # Extract the number
+    num_jobs = re.findall(r'(\d+)', div.text)[1]
+    return num_jobs
+
+def page_num_indeed(soup):
+    '''
+    This function returns the page number of job searching results. 
+    '''
+    # Find out the section contains total number of jobs  
+    div = soup.find('div', id='searchCountPages')
+    # Extract the number
+    page_num = re.findall(r'(\d+)', div.text)[0]
+    return page_num
