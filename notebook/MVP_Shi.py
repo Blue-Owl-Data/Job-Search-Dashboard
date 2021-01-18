@@ -103,13 +103,26 @@ def job_cards_indeed(soup):
 
 def job_titles_indeed(job_cards):
     '''
-    This function extract the job titles from a job_cards set. 
+    This function extracts the job titles from a set of job cards. 
     '''
     # Create a list to hold the job titles
     titles = []
-    # For Loop throught the job cards to extract the titles
+    # For loop through the job cards to pull the titles
     for job in job_cards:
         title = job.find('h2', class_='title')
         title = title.text.strip()
         titles.append(title)
     return titles
+
+def company_names_indeed(job_cards):
+    '''
+    This function extracts the company names from a set of job cards.
+    '''
+    # Create a list to hold the company names
+    names = []
+    # For loop through the job cards to pull the company names
+    for job in job_cards:
+        name = job.find('span', class_='company')
+        name = name.text.strip()
+        names.append(name)
+    return names
