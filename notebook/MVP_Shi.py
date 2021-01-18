@@ -126,3 +126,16 @@ def company_names_indeed(job_cards):
         name = name.text.strip()
         names.append(name)
     return names
+
+def post_ages_indeed(job_cards):
+    '''
+    This function pulls the post ages from a set of job cards.
+    '''
+    # Create a list to hold the post ages
+    ages = []
+    # For loop through the job cards to pull the post ages
+    for job in job_cards:
+        age = job.find('span', class_='date')
+        age = age.text.strip()
+        ages.append(age)
+    return ages
