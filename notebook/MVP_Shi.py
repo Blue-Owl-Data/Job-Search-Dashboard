@@ -14,7 +14,7 @@ from tqdm.notebook import tqdm
 
 def first_page_url_indeed(job_title, location):
     '''
-    This function returns a URL of a job search at Indeed.com 
+    This function returns a URL of the 1st page of a job search at Indeed.com 
     based on the job title and the location.
     '''
     # Create the base URL for a job serch at Indeed.com
@@ -53,8 +53,8 @@ def urls_indeed(job_title, location):
 
 def first_page_soup_indeed(job_title, location):
     '''
-    This function returns a BeautifulSoup object to hold 
-    the content of a request for job searching at Indeed.com
+    This function returns a BeautifulSoup object to hold the content 
+    of the first page of a request for job searching at Indeed.com
     '''
     # Generate the URL of the job search based on title and location
     url = first_page_url_indeed(job_title, location)
@@ -89,3 +89,14 @@ def page_num_indeed(soup):
     # Extract the number
     page_num = re.findall(r'(\d+)', div.text)[0]
     return page_num
+
+def job_cards_indeed(soup):
+    '''
+    This function accepts the Soup object of a Indeed page 
+    return an iterator containing the all the job cards in this page.
+    '''
+    # Find the appropriate tag that contains all of the job listings in this page
+    tag = soup.find('td', id="resultsCol")
+    # Extract all job cards
+    job_cards = tag.find_all('div', class_='jobsearch-SerpJobCard')
+    return job_cards
