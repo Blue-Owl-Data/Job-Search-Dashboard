@@ -139,3 +139,17 @@ def post_ages_indeed(job_cards):
         age = age.text.strip()
         ages.append(age)
     return ages
+
+def job_links_indeed(job_cards):
+    '''
+    This function pulls the job links from a set of job cards.
+    '''
+    # Create a list to hold the links
+    links = []
+    # For loop through the job cards to pull the links
+    for job in job_cards:
+        link = job.find('a')['href']
+        link = 'https://www.indeed.com' + link
+        link = link.replace(';', '&')
+        links.append(link)
+    return links
