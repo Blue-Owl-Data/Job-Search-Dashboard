@@ -84,7 +84,22 @@ def urls_indeed(job_title, location):
         urls.append(url)
     return urls
 
-
+def page_soup_indeed(url):
+    '''
+    This function returns a BeautifulSoup object to hold the content 
+    of a page for a job searching results at Indeed.com
+    '''
+    # Make the HTTP request
+    response = requests.get(url)
+    # Print the status code of the request
+    print("Status code of the request: ", response.status_code)
+    # Sanity check to make sure the document type is HTML
+    print("Document type: ", response.text[:15])
+    # Make a soup to hold the response content
+    soup = BeautifulSoup(response.content, "html.parser")
+    # Print out the title of the content
+    print("Title of the response: ", soup.title.string)
+    return soup
 
 def page_num_indeed(soup):
     '''
@@ -169,7 +184,7 @@ def job_links_and_contents_indeed(job_cards):
     links = []
     descriptions = []
     # For loop through the job cards to pull the links
-    for job in job_cards:
+    for job in tqdm(job_cards):
         link = job.find('a')['href']
         link = 'https://www.indeed.com' + link
         link = link.replace(';', '&')
@@ -210,3 +225,37 @@ def company_rating_indeed(job_cards):
         ratings.append(rating)
     return ratings
 
+def acquire_page_indeed(url):
+    '''
+    This function accepts a job search URL and returns the page number and
+    a pandas dataframe containing job title, location, company, company rating, 
+    post age and description. 
+    '''
+    # Create a Soup object based on the url
+    soup = page_soup_indeed(url)
+    # Pull the page number
+    page_num = page_num_indeed(soup)
+    # Pull the job cards
+    job_cards = job_cards_indeed(soup)
+    # Pull the job titles
+    titles = job_titles_indeed(job_cards)   
+    # Pull the names of the companies
+    companies = company_names_indeed(job_cards)
+    # Pull the post ages
+    ages = post_ages_indeed(job_cards)
+    # Pull the job locations
+    locations = job_locations_indeed(job_cards)
+    # Pull the company ratings
+    ratings = company_rating_indeed(job_cards)
+    # Pull the hyperlinks and job description
+    links, descriptions = job_links_and_contents_indeed(job_cards)    
+    # Create a dataframe
+    d = {'title': titles,
+         'locations': locations,
+         'company': companies, 
+         'company_rating': ratings,
+         'post_age': ages, 
+         'job_link': links, 
+         'job_description': descriptions}
+    df = pd.DataFrame(d)
+    return page_num, df
