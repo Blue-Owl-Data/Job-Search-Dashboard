@@ -168,3 +168,20 @@ def job_locations_indeed(job_cards):
         location = location.text.strip()
         locations.append(location)
     return locations
+
+def company_rating_indeed(job_cards):
+    '''
+    This function pulls the company rating from a set of job cards.
+    If the rating is unavailable, it will be marked as 'missing'.
+    '''
+    # Create a list to hold the locations
+    ratings = []
+    # For loop through the job cards to pull the locations
+    for job in job_cards:
+        rating = job.find('span', class_='ratingsContent')
+        if rating == None:
+            ratings.append('missing')
+            continue
+        rating = rating.text.strip()
+        ratings.append(rating)
+    return ratings
