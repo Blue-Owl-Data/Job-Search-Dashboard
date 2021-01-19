@@ -140,19 +140,37 @@ def post_ages_indeed(job_cards):
         ages.append(age)
     return ages
 
-def job_links_indeed(job_cards):
+def acuqire_indeed_job_description(url):
     '''
-    This function pulls the job links from a set of job cards.
+    This function accepts the URL of a job posting and pull its description.
+    '''
+    # Make the HTTP request
+    request = requests.get(url)
+    print("Status Code: ", request.status_code)
+    # Make a soup variable holding the response content
+    soup = BeautifulSoup(request.content, "html.parser")
+    # Print the page's title
+    print(soup.title.string)
+    # Find the section that contains job description
+    description = soup.find('div', id="jobDescriptionText")
+    return description.text
+
+def job_links_and_contents_indeed(job_cards):
+    '''
+    This function pulls the job links and descriptions from a set of job cards.
     '''
     # Create a list to hold the links
     links = []
+    descriptions = []
     # For loop through the job cards to pull the links
     for job in job_cards:
         link = job.find('a')['href']
         link = 'https://www.indeed.com' + link
         link = link.replace(';', '&')
+        description = acuqire_indeed_job_description(link)
         links.append(link)
-    return links
+        descriptions.append(description)
+    return links, descriptions
 
 def job_locations_indeed(job_cards):
     '''
