@@ -170,21 +170,28 @@ def acuqire_indeed_job_description(url):
     print("Status Code: ", request.status_code)
     # Make a soup variable holding the response content
     soup = BeautifulSoup(request.content, "html.parser")
-    # Print the page's title
-    print(soup.title.string)
-    # Find the section that contains job description
-    description = soup.find('div', id="jobDescriptionText")
-    return description.text
+    if soup == None:
+        description = 'error'
+    else:
+        # Print the page's title
+        print(soup.title.string)
+        # Find the section that contains job description
+        description = soup.find('div', id="jobDescriptionText")
+        if description == None:
+            description = 'error'
+        else:
+            description = description.text
+    return description
 
 def job_links_and_contents_indeed(job_cards):
     '''
     This function pulls the job links and descriptions from a set of job cards.
     '''
-    # Create a list to hold the links
+    # Create a list to hold the links and descriptions
     links = []
     descriptions = []
-    # For loop through the job cards to pull the links
-    for job in tqdm(job_cards):
+    # For loop through the job cards to pull the links and descriptions
+    for job in job_cards:
         link = job.find('a')['href']
         link = 'https://www.indeed.com' + link
         link = link.replace(';', '&')
@@ -259,3 +266,30 @@ def acquire_page_indeed(url):
          'job_description': descriptions}
     df = pd.DataFrame(d)
     return page_num, df
+
+def jobs_indeed(job_title, location):
+    '''
+    This function accepts the job title and location and return 
+    the job information pull from Indeed.com.
+    '''
+    # Generate the urls based on job title and location (state)
+    urls = urls_indeed(job_title, location)
+    # Set up an counter
+    counter = 0
+    # Create an empty dataframe to hold the job information
+    df_jobs = pd.DataFrame()
+    # For loop through the urls to pull job information
+    for url in urls:
+        counter = counter+1
+        page_num, df = acquire_page_indeed(url)
+        print("--------------------------------")
+        print("Page: ", counter)
+        print("--------------------------------")
+        if int(page_num) == counter:
+            df_jobs = df_jobs.append(df)
+            continue
+        if int(page_num) < counter:
+            break
+    # Print the total number of jobs
+    print(f"Total number of {job_title} positions in {location}: ", df_jobs.shape[0])
+    return df_jobs
