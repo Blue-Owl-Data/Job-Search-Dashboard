@@ -10,7 +10,8 @@ import urllib
 # Regex Library
 import re
 
-from tqdm.notebook import tqdm
+# Time-related Libraries
+import time
 
 def first_page_url_indeed(job_title, location):
     '''
@@ -40,6 +41,8 @@ def first_page_soup_indeed(job_title, location):
     print("Status code of the request: ", response.status_code)
     # Sanity check to make sure the document type is HTML
     print("Document type: ", response.text[:15])
+    # Take a break
+    time.sleep(5)
     # Make a soup to hold the response content
     soup = BeautifulSoup(response.content, "html.parser")
     # Print out the title of the content
@@ -95,6 +98,8 @@ def page_soup_indeed(url):
     print("Status code of the request: ", response.status_code)
     # Sanity check to make sure the document type is HTML
     print("Document type: ", response.text[:15])
+    # Take a break
+    time.sleep(5)
     # Make a soup to hold the response content
     soup = BeautifulSoup(response.content, "html.parser")
     # Print out the title of the content
@@ -168,6 +173,8 @@ def acuqire_indeed_job_description(url):
     # Make the HTTP request
     request = requests.get(url)
     print("Status Code: ", request.status_code)
+    # Take a break
+    time.sleep(5)
     # Make a soup variable holding the response content
     soup = BeautifulSoup(request.content, "html.parser")
     if soup == None:
