@@ -292,6 +292,7 @@ def jobs_indeed(job_title, location):
         print("--------------------------------")
         print("Page: ", counter)
         print("--------------------------------")
+        time.sleep(180)
         if int(page_num) == counter:
             df_jobs = df_jobs.append(df)
             continue
