@@ -59,33 +59,33 @@ def num_jobs_indeed(first_page_soup):
     num_jobs = re.findall(r'(\d+)', div.text)[1]
     return num_jobs
 
-def urls_indeed(job_title, location):
-    '''
-    This function returns all the URLs in a job searching result.
-    Prerequisite functions: 
-    - first_page_url_indeed
-    - first_page_soup_indeed
-    - num_jobs_indeed
-    '''
-    # Create a variable urls to hold the URLs of all pages
-    urls = []
-    # Generate the URL of the first page
-    first_page_url = first_page_url_indeed(job_title, location)
-    # Append the URL of the first page
-    urls.append(first_page_url)
-    # Generate the Soup object of the first page
-    first_page_soup = first_page_soup_indeed(job_title, location)
-    # Compute the total number of jobs based on the search
-    num_jobs = num_jobs_indeed(first_page_soup) 
-    # Estimate the total number of pages based on 15 job cards each page
-    num_page = round(int(num_jobs)/15) + 1
-    # For Loop through all the pages to generate their URLs
-    for i in range(1, num_page+1):
-        dic = {'start': i*10}
-        relative_url = urllib.parse.urlencode(dic)
-        url = first_page_url + '&' + relative_url
-        urls.append(url)
-    return urls
+# def urls_indeed(job_title, location):
+#     '''
+#     This function returns all the URLs in a job searching result.
+#     Prerequisite functions: 
+#     - first_page_url_indeed
+#     - first_page_soup_indeed
+#     - num_jobs_indeed
+#     '''
+#     # Create a variable urls to hold the URLs of all pages
+#     urls = []
+#     # Generate the URL of the first page
+#     first_page_url = first_page_url_indeed(job_title, location)
+#     # Append the URL of the first page
+#     urls.append(first_page_url)
+#     # Generate the Soup object of the first page
+#     first_page_soup = first_page_soup_indeed(job_title, location)
+#     # Compute the total number of jobs based on the search
+#     num_jobs = num_jobs_indeed(first_page_soup) 
+#     # Estimate the total number of pages based on 15 job cards each page
+#     num_page = round(int(num_jobs)/15) + 1
+#     # For Loop through all the pages to generate their URLs
+#     for i in range(1, num_page+1):
+#         dic = {'start': i*10}
+#         relative_url = urllib.parse.urlencode(dic)
+#         url = first_page_url + '&' + relative_url
+#         urls.append(url)
+#     return urls
 
 def page_soup_indeed(url):
     '''
@@ -106,10 +106,12 @@ def page_soup_indeed(url):
     print("Title of the response: ", soup.title.string)
     return soup
 
-def page_num_indeed(soup):
+def page_num_indeed(url):
     '''
     This function returns the page number of job searching results. 
     '''
+    # Create a Soup object based on the url
+    soup = page_soup_indeed(url)
     # Find out the section contains total number of jobs  
     div = soup.find('div', id='searchCountPages')
     # Extract the number
@@ -241,14 +243,11 @@ def company_rating_indeed(job_cards):
 
 def acquire_page_indeed(url):
     '''
-    This function accepts a job search URL and returns the page number and
-    a pandas dataframe containing job title, location, company, company rating, 
-    post age and description. 
+    This function accepts a job search URL and returns a pandas dataframe 
+    containing job title, location, company, company rating, post age and description. 
     '''
     # Create a Soup object based on the url
     soup = page_soup_indeed(url)
-    # Pull the page number
-    page_num = page_num_indeed(soup)
     # Pull the job cards
     job_cards = job_cards_indeed(soup)
     # Pull the job titles
@@ -272,7 +271,7 @@ def acquire_page_indeed(url):
          'job_link': links, 
          'job_description': descriptions}
     df = pd.DataFrame(d)
-    return page_num, df
+    return df
 
 def jobs_indeed(job_title, location):
     '''
@@ -280,24 +279,30 @@ def jobs_indeed(job_title, location):
     the job information pull from Indeed.com.
     '''
     # Generate the urls based on job title and location (state)
-    urls = urls_indeed(job_title, location)
+    url = first_page_url = first_page_url_indeed(job_title, location)
     # Set up an counter
-    counter = 0
+    counter = 1
     # Create an empty dataframe to hold the job information
-    df_jobs = pd.DataFrame()
+    df_jobs = pd.DataFrame(columns = ['title', 'locations', 'company', 'company_rating', 
+                                      'post_age','job_link', 'job_description'])
+    # Pull the page number
+    page_num = int(page_num_indeed(url))
+    # Set up an checker
+    keep_going = (counter == page_num)   
     # For loop through the urls to pull job information
-    for url in urls:
-        counter = counter+1
-        page_num, df = acquire_page_indeed(url)
+    while keep_going:
+        df = acquire_page_indeed(url)
         print("--------------------------------")
-        print("Page: ", counter)
+        print("Page: ", page_num)
         print("--------------------------------")
+        df_jobs = df_jobs.append(df, ignore_index=True)
         time.sleep(180)
-        if int(page_num) == counter:
-            df_jobs = df_jobs.append(df)
-            continue
-        if int(page_num) < counter:
-            break
+        dic = {'start': page_num*10}
+        relative_url = urllib.parse.urlencode(dic)
+        url = first_page_url + '&' + relative_url
+        counter = counter + 1
+        page_num = int(page_num_indeed(url))
+        keep_going = (counter == page_num)
     # Print the total number of jobs
     print(f"Total number of {job_title} positions in {location}: ", df_jobs.shape[0])
     return df_jobs
