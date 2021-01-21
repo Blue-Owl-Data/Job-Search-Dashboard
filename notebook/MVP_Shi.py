@@ -49,16 +49,6 @@ def first_page_soup_indeed(job_title, location):
     print("Title of the response: ", soup.title.string)
     return soup
 
-def num_jobs_indeed(first_page_soup):
-    '''
-    This function returns the total number of the jobs in the searching result.
-    '''
-    # Find out the section contains total number of jobs  
-    div = first_page_soup.find('div', id='searchCountPages')
-    # Extract the number
-    num_jobs = re.findall(r'(\d+)', div.text)[1]
-    return num_jobs
-
 # def urls_indeed(job_title, location):
 #     '''
 #     This function returns all the URLs in a job searching result.
@@ -108,7 +98,7 @@ def page_soup_indeed(url):
 
 def page_num_indeed(url):
     '''
-    This function returns the page number of job searching results. 
+    This function returns the page number of the job searching results. 
     '''
     # Create a Soup object based on the url
     soup = page_soup_indeed(url)
@@ -117,6 +107,18 @@ def page_num_indeed(url):
     # Extract the number
     page_num = re.findall(r'(\d+)', div.text)[0]
     return page_num
+
+def num_jobs_indeed(url):
+    '''
+    This function returns the total number of the jobs in the searching result.
+    '''
+    # Create a Soup object based on the url
+    soup = page_soup_indeed(url)
+    # Find out the section contains total number of jobs  
+    div = soup.find('div', id='searchCountPages')
+    # Extract the number
+    num_jobs = re.findall(r'(\d+)', div.text)[1]
+    return num_jobs
 
 def job_cards_indeed(soup):
     '''
@@ -280,6 +282,8 @@ def jobs_indeed(job_title, location):
     '''
     # Generate the urls based on job title and location (state)
     url = first_page_url = first_page_url_indeed(job_title, location)
+    # Print the total number of jobs
+    print(f"Total number of {job_title} in {location}: ", num_jobs_indeed(url))
     # Set up an counter
     counter = 1
     # Create an empty dataframe to hold the job information
