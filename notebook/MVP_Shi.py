@@ -310,3 +310,21 @@ def jobs_indeed(job_title, location):
     # Print the total number of jobs
     print(f"Total number of {job_title} positions in {location}: ", df_jobs.shape[0])
     return df_jobs
+
+def words_variables(df, companies):
+    '''
+    This function accepts the dataframe containing cleaned job description and 
+    a list of company names and return a dictionary in which the values are the words 
+    that appear in the job description. 
+    '''
+    # Create the words that appear all the job descritipons
+    all_words = ' '.join(df.clean)
+    # Create a dictionary to hold the variable all_words
+    d_words = {'all': all_words}
+    # For loop the companies and create the words that appear in their job descriptions
+    for company in companies:
+        mask = (df.company == company)
+        s_company = df[mask].clean
+        words = ' '.join(s_company)
+        d_words[company] = words
+    return d_words
