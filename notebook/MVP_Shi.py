@@ -369,3 +369,21 @@ def bigrams_frequency(d_words):
     bigrams_counts = bigrams_counts.fillna(0).apply(lambda s: s.astype(int))
     bigrams_counts.sort_values(by='all', ascending=False, inplace=True)
     return bigrams_counts
+
+def trigrams_frequency(d_words):
+    '''
+    This function accept the dictionary created by function words_variables
+    and return the trigrams frequency in the job description. 
+    '''
+    # Read the company names from the dictionary
+    companies = d_words.keys()
+    # Create a dataframe to hold the word frequency
+    trigrams_counts = pd.DataFrame()
+    # For loop through the companies and generate the word frequency in their job descriptions
+    for company in companies:
+        freq = pd.Series(list(nltk.ngrams(d_words[company].split(), 3))).value_counts()
+        trigrams_counts = pd.concat([trigrams_counts, freq], axis=1, sort=True)
+    trigrams_counts.columns = companies
+    trigrams_counts = trigrams_counts.fillna(0).apply(lambda s: s.astype(int))
+    trigrams_counts.sort_values(by='all', ascending=False, inplace=True)
+    return trigrams_counts
