@@ -294,7 +294,7 @@ def jobs_indeed(job_title, location):
     # Set up an checker
     keep_going = (counter == page_num)   
     # For loop through the urls to pull job information
-    while keep_going:
+    while keep_going and page_num <=40:
         df = acquire_page_indeed(url)
         print("--------------------------------")
         print("Page: ", page_num)
