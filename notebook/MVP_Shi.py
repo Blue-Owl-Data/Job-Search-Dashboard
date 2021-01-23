@@ -13,6 +13,10 @@ import re
 # Time-related Libraries
 import time
 
+# NLP Libraries
+import nltk
+
+########################### Acquisition #################################
 def first_page_url_indeed(job_title, location):
     '''
     This function returns a URL of the 1st page of a job search at Indeed.com 
@@ -311,6 +315,7 @@ def jobs_indeed(job_title, location):
     print(f"Total number of {job_title} positions in {location}: ", df_jobs.shape[0])
     return df_jobs
 
+########################### Exploration #################################
 def words_variables(df, companies):
     '''
     This function accepts the dataframe containing cleaned job description and 
@@ -329,8 +334,6 @@ def words_variables(df, companies):
         d_words[company] = words
     return d_words
 
-# Define a function to compute the word frequency in the job description
-
 def word_frequency(d_words):
     '''
     This function accept the dictionary created by function words_variables
@@ -348,3 +351,21 @@ def word_frequency(d_words):
     word_counts = word_counts.fillna(0).apply(lambda s: s.astype(int))
     word_counts.sort_values(by='all', ascending=False, inplace=True)
     return word_counts
+
+def bigrams_frequency(d_words):
+    '''
+    This function accept the dictionary created by function words_variables
+    and return the bigrams frequency in the job description. 
+    '''
+    # Read the company names from the dictionary
+    companies = d_words.keys()
+    # Create a dataframe to hold the word frequency
+    bigrams_counts = pd.DataFrame()
+    # For loop through the companies and generate the word frequency in their job descriptions
+    for company in companies:
+        freq = pd.Series(list(nltk.ngrams(d_words[company].split(), 2))).value_counts()
+        bigrams_counts = pd.concat([bigrams_counts, freq], axis=1, sort=True)
+    bigrams_counts.columns = companies
+    bigrams_counts = bigrams_counts.fillna(0).apply(lambda s: s.astype(int))
+    bigrams_counts.sort_values(by='all', ascending=False, inplace=True)
+    return bigrams_counts
