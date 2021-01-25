@@ -387,3 +387,13 @@ def trigrams_frequency(d_words):
     trigrams_counts = trigrams_counts.fillna(0).apply(lambda s: s.astype(int))
     trigrams_counts.sort_values(by='all', ascending=False, inplace=True)
     return trigrams_counts
+
+def remove_duplicates(df):
+    '''
+    This function removes the duplicates in the dataframe
+    '''
+    # Define the columns for identifying duplicates
+    columns = ['title', 'locations', 'company', 'job_link', 'job_description']
+    # Drop the duplicates except for the last occurrence
+    df.drop_duplicates(subset=columns, keep='last', inplace=True, ignore_index=True)
+    return df
