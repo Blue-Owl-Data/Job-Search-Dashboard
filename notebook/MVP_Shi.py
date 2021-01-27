@@ -319,7 +319,19 @@ def jobs_indeed(job_title, location):
     return df_jobs
 
 ########################### Exploration #################################
-def words_variables(df, companies):
+def words_variables_v1(df):
+    '''
+    This function accepts the dataframe with cleaned job description 
+    and return a dictionary in which the values are the words that 
+    appear in the job description. 
+    '''
+    # Create the words that appear all the job descritipons
+    all_words = ' '.join(df.clean)
+    # Create a dictionary to hold the variable all_words
+    d_words = {'frequency': all_words}
+    return d_words
+
+def words_variables_v2(df, companies):
     '''
     This function accepts the dataframe containing cleaned job description and 
     a list of company names and return a dictionary in which the values are the words 
@@ -328,7 +340,7 @@ def words_variables(df, companies):
     # Create the words that appear all the job descritipons
     all_words = ' '.join(df.clean)
     # Create a dictionary to hold the variable all_words
-    d_words = {'all': all_words}
+    d_words = {'Overall': all_words}
     # For loop the companies and create the words that appear in their job descriptions
     for company in companies:
         mask = (df.company == company)
