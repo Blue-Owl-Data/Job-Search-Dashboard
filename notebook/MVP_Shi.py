@@ -340,7 +340,7 @@ def words_variables_v2(df, companies):
     # Create the words that appear all the job descritipons
     all_words = ' '.join(df.clean)
     # Create a dictionary to hold the variable all_words
-    d_words = {'Overall': all_words}
+    d_words = {'all': all_words}
     # For loop the companies and create the words that appear in their job descriptions
     for company in companies:
         mask = (df.company == company)
@@ -349,9 +349,26 @@ def words_variables_v2(df, companies):
         d_words[company] = words
     return d_words
 
-def word_frequency(d_words):
+def word_frequency_v1(d_words):
     '''
-    This function accept the dictionary created by function words_variables
+    This function accept the dictionary created by function words_variables_v1
+    and return the word frequency in the job description. 
+    '''
+    # Create a dataframe to hold the word frequency
+    word_counts = pd.DataFrame()
+    # Compute the words frequency
+    freq = pd.Series(d_words['frequency'].split()).value_counts()
+    # Add the `freq` seires to `word_counts` dataframe
+    word_counts = pd.concat([word_counts, freq], axis=1, sort=True)
+    # Rename the coumns
+    word_counts.columns = d_words.keys()
+    # Sort the dataframe by the values in column `frequency`
+    word_counts.sort_values(by='frequency', ascending=False, inplace=True)
+    return word_counts
+
+def word_frequency_v2(d_words):
+    '''
+    This function accept the dictionary created by function words_variables_v2
     and return the word frequency in the job description. 
     '''
     # Read the company names from the dictionary
