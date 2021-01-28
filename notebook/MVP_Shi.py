@@ -430,7 +430,35 @@ def remove_duplicates(df):
     df.drop_duplicates(subset=columns, keep='last', inplace=True, ignore_index=True)
     return df
 
-def top_skills_ds(company, k):
+def top_skills_ds_v1(k):
+    '''
+    This function accepts a positive integer k and 
+    returns a dataframe containing the top k skills needed
+    for data scientist positions.
+    '''
+    # Import the file path
+    database = env_Shi.database
+    # Load the prepared dataframe with job search results
+    df = pd.read_csv(f"{database}df_tx_ds.csv", index_col=0)
+    # Create a string of all words that appear in the job description
+    dic = words_variables_v1(df)
+    # Compute the words frequency
+    df_word_frequency = word_frequency_v1(dic)
+    # Define a library that has a complete sillset for data scientist
+    library = ['python', 'r', 'sql', 'tableau', 'scikitlearn', 'tensorflow', 'pytorch', 'aws', 'hadoop', 'hive', 
+        'impala', 'matlab', 'model', 'algorithm', 'storytelling', 'statistic', 'etl', 'exploration', 'extraction', 
+        'sharepoint', 'dashboard']
+    # Create a empty dataframe to hold the rank of the skills
+    df_skills = pd.DataFrame()
+    # For loop through the library to find out the frequency of the skills mentioned in the job description
+    for skill in library:
+        mask = (df_word_frequency.index == skill)
+        df = df_word_frequency[mask]
+        df_skills = pd.concat([df_skills, df])
+    df_skills.sort_values(by='frequency', ascending=False, inplace=True)
+    return df_skills.head(k)
+
+def top_skills_ds_v2(company, k):
     '''
     This function accepts a company name and a positive integer k and 
     returns a dataframe containing the top k skills needed in that company 
@@ -441,9 +469,9 @@ def top_skills_ds(company, k):
     # Load the prepared dataframe with job search results
     df = pd.read_csv(f"{database}df_tx_ds.csv", index_col=0)
     # Create a string of all words that appear in the job description
-    dic = words_variables(df, company)
+    dic = words_variables_v2(df, company)
     # Compute the words frequency
-    df_word_frequency = word_frequency(dic)
+    df_word_frequency = word_frequency_v2(dic)
     # Define a library that has a complete sillset for data scientist
     library = ['python', 'r', 'sql', 'tableau', 'scikitlearn', 'tensorflow', 'pytorch', 'aws', 'hadoop', 'hive', 
         'impala', 'matlab', 'model', 'algorithm', 'storytelling', 'statistic', 'etl', 'exploration', 'extraction', 
