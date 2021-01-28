@@ -384,9 +384,26 @@ def word_frequency_v2(d_words):
     word_counts.sort_values(by='all', ascending=False, inplace=True)
     return word_counts
 
-def bigrams_frequency(d_words):
+def bigrams_frequency_v1(d_words):
     '''
-    This function accept the dictionary created by function words_variables
+    This function accept the dictionary created by function words_variables_v1
+    and return the word frequency in the job description. 
+    '''
+    # Create a dataframe to hold the word frequency
+    word_counts = pd.DataFrame()
+    # Compute the words frequency
+    freq = pd.Series(list(nltk.ngrams(d_words['frequency'].split(), 2))).value_counts()
+    # Add the `freq` seires to `word_counts` dataframe
+    word_counts = pd.concat([word_counts, freq], axis=1, sort=True)
+    # Rename the coumns
+    word_counts.columns = d_words.keys()
+    # Sort the dataframe by the values in column `frequency`
+    word_counts.sort_values(by='frequency', ascending=False, inplace=True)
+    return word_counts
+
+def bigrams_frequency_v2(d_words):
+    '''
+    This function accept the dictionary created by function words_variables_v2
     and return the bigrams frequency in the job description. 
     '''
     # Read the company names from the dictionary
