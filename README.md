@@ -1,4 +1,4 @@
-![Header](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/Blue_Owl_Data_Banner.png "Header")
+![Header](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/images/Blue_Owl_Data_Banner.png "Header")
 
  <h2 align = "center"> <b> Welcome! We are Blue Owl Data! </b></h2>
 
@@ -68,4 +68,4 @@ All files are reproducible and available for download and use.
 
 [Christopher Logan Ortiz](https://github.com/Promeos)
 
-![image](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/owly.png "image")
+![image](https://github.com/Blue-Owl-Data/Job-Search-Dashboard/blob/main/images/owly.png "image")
