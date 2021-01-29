@@ -147,8 +147,11 @@ def job_titles_indeed(job_cards):
     # For loop through the job cards to pull the titles
     for job in job_cards:
         title = job.find('h2', class_='title')
-        title = title.text.strip()
-        titles.append(title)
+        if title == None:
+            title = 'error'
+        else: 
+            title = title.text.strip()
+            titles.append(title)
     return titles
 
 def company_names_indeed(job_cards):
@@ -160,8 +163,11 @@ def company_names_indeed(job_cards):
     # For loop through the job cards to pull the company names
     for job in job_cards:
         name = job.find('span', class_='company')
-        name = name.text.strip()
-        names.append(name)
+        if name == None:
+            name = 'error'
+        else: 
+            name = name.text.strip()
+            names.append(name)
     return names
 
 def post_ages_indeed(job_cards):
@@ -173,8 +179,11 @@ def post_ages_indeed(job_cards):
     # For loop through the job cards to pull the post ages
     for job in job_cards:
         age = job.find('span', class_='date')
-        age = age.text.strip()
-        ages.append(age)
+        if age == None:
+            age = 'error'
+        else: 
+            age = age.text.strip()
+            ages.append(age)
     return ages
 
 def acuqire_indeed_job_description(url):
