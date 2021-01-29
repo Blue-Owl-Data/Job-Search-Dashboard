@@ -120,8 +120,11 @@ def job_titles_indeed(job_cards):
     # For loop through the job cards to pull the titles
     for job in job_cards:
         title = job.find('h2', class_='title')
-        title = title.text.strip()
-        titles.append(title)
+        if title == None:
+            title = 'error'
+        else: 
+            title = title.text.strip()
+            titles.append(title)
     return titles
 
 def company_names_indeed(job_cards):
