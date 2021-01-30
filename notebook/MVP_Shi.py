@@ -327,6 +327,31 @@ def jobs_indeed(job_title, location):
     print(f"Total number of {job_title} positions in {location}: ", df_jobs.shape[0])
     return df_jobs
 
+########################### Preparation #################################
+def remove_duplicates(df):
+    '''
+    This function removes the duplicates in the dataframe
+    '''
+    # Define the columns for identifying duplicates
+    columns = ['title', 'locations', 'company', 'job_link', 'job_description']
+    # Drop the duplicates except for the last occurrence
+    df.drop_duplicates(subset=columns, keep='last', inplace=True, ignore_index=True)
+    return df
+
+def daily_update_ds(df):
+    '''
+    This function updates job posts of data scientist in TX by adding the daily acquring
+    of data scientist job posts in TX. 
+    '''
+    # Read 
+    database = env_Shi.database
+    df_ds_tx = pd.read_csv(f"{database}df_tx_ds.csv", index_col=0)
+    # Add the daily 
+    df_ds_tx = pd.concat([df_ds_tx, df], ignore_index=True)
+    # Remove the duplicates
+    remove_duplicates(df_ds_tx)
+    return df_ds_tx
+
 ########################### Exploration #################################
 def words_variables_v1(df):
     '''
@@ -462,16 +487,6 @@ def trigrams_frequency_v2(d_words):
     trigrams_counts = trigrams_counts.fillna(0).apply(lambda s: s.astype(int))
     trigrams_counts.sort_values(by='all', ascending=False, inplace=True)
     return trigrams_counts
-
-def remove_duplicates(df):
-    '''
-    This function removes the duplicates in the dataframe
-    '''
-    # Define the columns for identifying duplicates
-    columns = ['title', 'locations', 'company', 'job_link', 'job_description']
-    # Drop the duplicates except for the last occurrence
-    df.drop_duplicates(subset=columns, keep='last', inplace=True, ignore_index=True)
-    return df
 
 def top_skills_ds_v1(k):
     '''
