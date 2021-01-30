@@ -12,6 +12,7 @@ import re
 
 # Time-related Libraries
 import time
+import datetime
 
 # NLP Libraries
 import nltk
@@ -336,6 +337,38 @@ def remove_duplicates(df):
     columns = ['title', 'locations', 'company', 'job_link', 'job_description']
     # Drop the duplicates except for the last occurrence
     df.drop_duplicates(subset=columns, keep='last', inplace=True, ignore_index=True)
+    return df
+
+def compute_post_date(df):
+    '''
+    This function computes the date of the job post based on post age
+    and set the date as the index of the dataframe.
+    '''
+    # Create an empty list to hold the post date
+    post_date = []
+    # For loop the column post_age and convert the values to date
+    for age in df.post_age:
+        if age == 'Just posted':
+            date = datetime.date.today()
+            post_date.append(date)
+        elif age == 'Today':
+            date = datetime.date.today()
+            post_date.append(date)
+        else:
+            # Extract the number
+            num = re.findall(r'(\d+)', age)[0]
+            # Cast the string number to integer
+            num = int(num)
+            # Convert the integer to timedelta object
+            num = datetime.timedelta(days=num)
+            # Compute post date        
+            date = datetime.date.today()
+            date = date - num
+            post_date.append(date)
+    # Add post date as new column
+    df['date'] = post_date
+    # Set the column post_date as the index and sort the values
+    df = df.set_index('date').sort_index(ascending=False)
     return df
 
 def daily_update_ds(df):
