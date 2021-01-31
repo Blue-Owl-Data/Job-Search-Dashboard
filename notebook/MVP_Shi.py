@@ -379,6 +379,7 @@ def daily_update_ds(df):
     # Read the job posts of data scientist in TX
     database = env_Shi.database
     df_ds_tx = pd.read_csv(f"{database}df_ds_tx.csv")
+    num_jobs = df_ds_tx.shape[0]
     # Convert the date column to datetime type
     df_ds_tx.date = pd.to_datetime(df_ds_tx.date)
     # Set the date column as the index and sort the index
@@ -388,6 +389,9 @@ def daily_update_ds(df):
     df_ds_tx = pd.concat([df_ds_tx, df]).sort_index(ascending=False)
     # Remove the duplicates
     df_ds_tx = remove_duplicates(df_ds_tx)
+    # Print the new jobs posted today
+    num_new_jobs = df_ds_tx.shape[0] - num_jobs
+    print("New Jobs Posted Today: ", num_new_jobs)
     return df_ds_tx
 
 ########################### Exploration #################################
