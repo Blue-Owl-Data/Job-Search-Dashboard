@@ -283,7 +283,7 @@ def acquire_page_indeed(url):
     links, descriptions = job_links_and_contents_indeed(job_cards)    
     # Create a dataframe
     d = {'title': titles,
-         'locations': locations,
+         'location': locations,
          'company': companies, 
          'company_rating': ratings,
          'post_age': ages, 
@@ -304,7 +304,7 @@ def jobs_indeed(job_title, location):
     # Set up an counter
     counter = 1
     # Create an empty dataframe to hold the job information
-    df_jobs = pd.DataFrame(columns = ['title', 'locations', 'company', 'company_rating', 
+    df_jobs = pd.DataFrame(columns = ['title', 'location', 'company', 'company_rating', 
                                       'post_age','job_link', 'job_description'])
     # Pull the page number
     page_num = int(page_num_indeed(url))
@@ -334,9 +334,9 @@ def remove_duplicates(df):
     This function removes the duplicates in the dataframe
     '''
     # Define the columns for identifying duplicates
-    columns = ['title', 'locations', 'company', 'job_link', 'job_description']
+    columns = ['title', 'location', 'company', 'job_link', 'job_description']
     # Drop the duplicates except for the last occurrence
-    df.drop_duplicates(subset=columns, keep='last', inplace=True, ignore_index=True)
+    df.drop_duplicates(subset=columns, inplace=True, keep='last')
     return df
 
 def compute_post_date(df):
@@ -376,13 +376,18 @@ def daily_update_ds(df):
     This function updates job posts of data scientist in TX by adding the daily acquring
     of data scientist job posts in TX. 
     '''
-    # Read 
+    # Read the job posts of data scientist in TX
     database = env_Shi.database
-    df_ds_tx = pd.read_csv(f"{database}df_tx_ds.csv", index_col=0)
-    # Add the daily 
-    df_ds_tx = pd.concat([df_ds_tx, df], ignore_index=True)
+    df_ds_tx = pd.read_csv(f"{database}df_ds_tx.csv")
+    # Convert the date column to datetime type
+    df_ds_tx.date = pd.to_datetime(df_ds_tx.date)
+    # Set the date column as the index and sort the index
+    df_ds_tx = df_ds_tx.set_index('date').sort_index(ascending=False)
+    # Add the daily update
+    df = compute_post_date(df)
+    df_ds_tx = pd.concat([df_ds_tx, df]).sort_index(ascending=False)
     # Remove the duplicates
-    remove_duplicates(df_ds_tx)
+    df_ds_tx = remove_duplicates(df_ds_tx)
     return df_ds_tx
 
 ########################### Exploration #################################
