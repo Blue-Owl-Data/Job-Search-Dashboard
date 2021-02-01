@@ -255,7 +255,7 @@ def acquire_page_indeed(url):
     links, descriptions = job_links_and_contents_indeed(job_cards)    
     # Create a dataframe
     d = {'title': titles,
-         'locations': locations,
+         'location': locations,
          'company': companies, 
          'company_rating': ratings,
          'post_age': ages, 
@@ -276,7 +276,7 @@ def jobs_indeed(job_title, location):
     # Set up an counter
     counter = 1
     # Create an empty dataframe to hold the job information
-    df_jobs = pd.DataFrame(columns = ['title', 'locations', 'company', 'company_rating', 
+    df_jobs = pd.DataFrame(columns = ['title', 'location', 'company', 'company_rating', 
                                       'post_age','job_link', 'job_description'])
     # Pull the page number
     page_num = int(page_num_indeed(url))
