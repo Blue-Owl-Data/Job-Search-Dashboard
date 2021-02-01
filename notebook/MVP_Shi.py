@@ -20,6 +20,9 @@ import nltk
 # Environment File
 import env_Shi
 
+# Import Self Defined Functions
+import MVP_Bojado
+
 ########################### Acquisition #################################
 def first_page_url_indeed(job_title, location):
     '''
@@ -393,6 +396,22 @@ def daily_update_ds(df):
     num_new_jobs = df_ds_tx.shape[0] - num_jobs
     print("New Jobs Posted Today: ", num_new_jobs)
     return df_ds_tx
+
+def prepare_job_posts_indeed():
+    '''
+    The function reads the csv file of job posts and returns a cleaned dataframe
+    ready for exploration.
+    '''
+    # Read the job posts of data scientist in TX
+    database = env_Shi.database
+    df = pd.read_csv(f"{database}df_ds_tx.csv")
+    # Conver the string date to datetime object
+    df.date = pd.to_datetime(df.date)
+    # Set the date as the index and sort the dataframe in descending order
+    df = df.set_index('date').sort_index(ascending=False)
+    # Clean the text in the job description
+    df = MVP_Bojado.prep_job_description_data(df, 'job_description')
+    return df
 
 ########################### Exploration #################################
 def words_variables_v1(df):
