@@ -1,7 +1,7 @@
 ######################## Introduction ###########################
 '''
-This py file is used to acquire the job posts of web developer 
-position in TX at Indeed.com.
+This py file acquires the job posts of web developer 
+positions in TX. Data is provided by Indeed.com.
 '''
 ###################### Import Libraries #########################
 '''General Libraries'''
@@ -16,15 +16,33 @@ import urllib
 '''Regex Library'''
 import re
 
+'''AWS S3 Libraries'''
+import logging
+import boto3
+from botocore.exceptions import ClientError
+
 '''Time-related Libraries'''
 import time
 from datetime import date
-###################### Build Helper Functions ####################
 
+###################### Build Helper Functions ####################
 def first_page_url_indeed(job_title, location):
     '''
     This function returns a URL of the 1st page of a job search at Indeed.com 
     based on the job title and the location.
+    
+    Parameters
+    ----------
+    job_title : str
+        The title of job postings to acquire.
+    location : str
+        The city/state the job is located in.
+        
+    Returns
+    -------
+    url : str
+        A formatted URL with the job title and location to acquire from
+        indeed.com.
     '''
     # Create the base URL for a job serch at Indeed.com
     base_url = 'https://www.indeed.com/jobs?'
@@ -36,10 +54,18 @@ def first_page_url_indeed(job_title, location):
     url = base_url + relative_url
     return url
 
+
 def first_page_soup_indeed(job_title, location):
     '''
     This function returns a BeautifulSoup object to hold the content 
     of the first page of a request for job searching at Indeed.com
+    
+    Parameters
+    ----------
+    job_title : str
+        The title of job postings to acquire.
+    location : str
+        The city/state the job is located in.
     '''
     # Generate the URL of the job search based on title and location
     url = first_page_url_indeed(job_title, location)
@@ -56,6 +82,7 @@ def first_page_soup_indeed(job_title, location):
     # Print out the title of the content
     print("Title of the response: ", soup.title.string)
     return soup
+
 
 def page_soup_indeed(url):
     '''
@@ -76,6 +103,7 @@ def page_soup_indeed(url):
     print("Title of the response: ", soup.title.string)
     return soup
 
+
 def page_num_indeed(url):
     '''
     This function returns the page number of the job searching results. 
@@ -87,6 +115,7 @@ def page_num_indeed(url):
     # Extract the number
     page_num = re.findall(r'(\d+)', div.text)[0]
     return page_num
+
 
 def num_jobs_indeed(url):
     '''
@@ -100,6 +129,7 @@ def num_jobs_indeed(url):
     num_jobs = re.findall(r'(\d+)', div.text)[1]
     return num_jobs
 
+
 def job_cards_indeed(soup):
     '''
     This function accepts the Soup object of a Indeed page 
@@ -110,6 +140,7 @@ def job_cards_indeed(soup):
     # Extract all job cards
     job_cards = tag.find_all('div', class_='jobsearch-SerpJobCard')
     return job_cards
+
 
 def job_titles_indeed(job_cards):
     '''
@@ -127,6 +158,7 @@ def job_titles_indeed(job_cards):
             titles.append(title)
     return titles
 
+
 def company_names_indeed(job_cards):
     '''
     This function extracts the company names from a set of job cards.
@@ -143,6 +175,7 @@ def company_names_indeed(job_cards):
             names.append(name)
     return names
 
+
 def post_ages_indeed(job_cards):
     '''
     This function pulls the post ages from a set of job cards.
@@ -158,6 +191,7 @@ def post_ages_indeed(job_cards):
             age = age.text.strip()
             ages.append(age)
     return ages
+
 
 def acuqire_indeed_job_description(url):
     '''
@@ -182,6 +216,7 @@ def acuqire_indeed_job_description(url):
         else:
             description = description.text
     return description
+
 
 def job_links_and_contents_indeed(job_cards):
     '''
@@ -215,6 +250,7 @@ def job_locations_indeed(job_cards):
         locations.append(location)
     return locations
 
+
 def company_rating_indeed(job_cards):
     '''
     This function pulls the company rating from a set of job cards.
@@ -231,6 +267,7 @@ def company_rating_indeed(job_cards):
         rating = rating.text.strip()
         ratings.append(rating)
     return ratings
+
 
 def acquire_page_indeed(url):
     '''
@@ -263,6 +300,7 @@ def acquire_page_indeed(url):
          'job_description': descriptions}
     df = pd.DataFrame(d)
     return df
+
 
 def jobs_indeed(job_title, location):
     '''
@@ -299,13 +337,46 @@ def jobs_indeed(job_title, location):
     # Print the total number of jobs
     print(f"Total number of {job_title} positions in {location}: ", df_jobs.shape[0])
     return df_jobs
+
+    
+def upload_file(file_name, bucket='wdrawjobpostings', object_name=None):
+    """Upload a file to an S3 bucket
+
+    :param file_name: File to upload
+    :param bucket: Bucket to upload to
+    :param object_name: S3 object name. If not specified then file_name is used
+    :return: True if file was uploaded, else False
+    """
+
+    # If S3 object_name was not specified, use file_name
+    if object_name is None:
+        object_name = file_name
+
+    # Upload the file
+    s3_client = boto3.client('s3')
+    try:
+        response = s3_client.upload_file(file_name, bucket, object_name)
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True
+
 ################### Execution #####################
 if __name__ == "__main__":
     # Get current date
     today = date.today()
-    # Conver the datetime to string format
+    # Convert the datetime to string format
     today = today.strftime('%m%d%Y')
-    # Acquire the job posts at Indeed.com
-    df_ds = jobs_indeed('web developer', 'tx')
+    
+    # Name of file to be uploaded to S3 bucket, `wdrawjobpostings`
+    file_name = f"wd_tx_indeed_{today}.csv"
+    
+    # Acquire web developer job posts located in Texas from Indeed.com
+    df_wd = jobs_indeed('web developer', 'tx')
+
     # Save as csv file
-    df_ds.to_csv(f"wd_tx_indeed_{today}.csv")
+    df_wd.to_csv(file_name)
+    
+    # Connect to AWS S3 Account and upload web developer job posts.
+    s3 = boto3.resource('s3')
+    upload_file(file_name=file_name)
