@@ -7,7 +7,7 @@ for data exploration.
 '''General Libraries'''
 import numpy as np
 import pandas as pd
-
+import sys
 '''AWS S3 Libraries'''
 import logging
 import boto3
@@ -19,7 +19,8 @@ import re
 '''Time-related Libraries'''
 import time
 from datetime import date
-
+import datetime
+sys.path.insert(1, './notebook/')
 import MVP_Bojado
 
 ###################### Build Helper Functions ####################
@@ -61,7 +62,7 @@ def remove_duplicates(df):
     This function removes the duplicates in the dataframe
     '''
     # Define the columns for identifying duplicates
-    columns = ['title', 'locations', 'company', 'job_link', 'job_description']
+    columns = ['title', 'location', 'company', 'job_link', 'job_description']
     # Drop the duplicates except for the last occurrence
     df.drop_duplicates(subset=columns, inplace=True, keep='last')
     return df
@@ -116,13 +117,24 @@ def prepare_job_posts_indeed():
     df.date = pd.to_datetime(df.date)
     # Set the date as the index and sort the dataframe in descending order
     df = df.set_index('date').sort_index(ascending=False)
+    # Create columns of city, state, and zipcode
+    location = df.location.str.split(', ', expand=True)
+    location.columns = ['city', 'zipcode']
+    location.city = location.city.apply(lambda i: 0 if i == 'United States' else i)
+    location.city = location.city.apply(lambda i: 0 if i == 'Texas' else i)
+    location.zipcode = location.zipcode.apply(lambda i: 0 if re.findall(r"(\d+)", str(i)) == [] 
+                                          else re.findall(r"(\d+)", str(i))[0])
+    df['city'] = location.city
+    df['state'] = 'TX'
+    df['zipcode'] = location.zipcode
+    # Replace the missing values in the company rating with 0
+    df.company_rating = df.company_rating.apply(lambda i: 0 if i == 'missing' else i)
     # Drop the column post_age
-    df = df.drop(columns='post_age')
+    df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
     # Save a JSON version of the prepared data
-    df.to_json('df_ds_tx_prepared.json')
-    
+    df.to_json('df_ds_tx_prepared.json', orient='records')
     return df
 
 ###################### Download and Upload Job Postings to AWS S3 ####################
@@ -152,10 +164,10 @@ def list_bucket_files(bucket_name='dsrawjobpostings'):
     # Iterate through each file in the bucket and display the name
     files = []
     for page in ds_job_bucket.objects.pages():
-    for obj in page:
-        print(obj.key)
-        # Append the file name to the list of file names.
-        files.append(obj.key)
+        for obj in page:
+            print(obj.key)
+            # Append the file name to the list of file names.
+            files.append(obj.key)
     # Return the list of file names available in the bucket..
     return files
 

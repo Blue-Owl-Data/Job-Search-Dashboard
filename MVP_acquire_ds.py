@@ -173,7 +173,7 @@ def post_ages_indeed(job_cards):
     return ages
 
 
-def acuqire_indeed_job_description(url):
+def acquire_indeed_job_description(url):
     '''
     This function accepts the URL of a job posting and pull its description.
     '''
@@ -210,7 +210,7 @@ def job_links_and_contents_indeed(job_cards):
         link = job.find('a')['href']
         link = 'https://www.indeed.com' + link
         link = link.replace(';', '&')
-        description = acuqire_indeed_job_description(link)
+        description = acquire_indeed_job_description(link)
         links.append(link)
         descriptions.append(description)
     return links, descriptions
