@@ -409,6 +409,20 @@ def prepare_job_posts_indeed():
     df.date = pd.to_datetime(df.date)
     # Set the date as the index and sort the dataframe in descending order
     df = df.set_index('date').sort_index(ascending=False)
+    # Create columns of city, state, and zipcode
+    location = df.locations.str.split(', ', expand=True)
+    location.columns = ['city', 'zipcode']
+    location.city = location.city.apply(lambda i: 0 if i == 'United States' else i)
+    location.city = location.city.apply(lambda i: 0 if i == 'Texas' else i)
+    location.zipcode = location.zipcode.apply(lambda i: 0 if re.findall(r"(\d+)", str(i)) == [] 
+                                          else re.findall(r"(\d+)", str(i))[0])
+    df['city'] = location.city
+    df['state'] = 'TX'
+    df['zipcode'] = location.zipcode
+    # Replace the missing values in the company rating with 0
+    df.company_rating = df.company_rating.apply(lambda i: 0 if i == 'missing' else i)
+    # Drop the column post_age
+    df = df.drop(columns=['post_age', 'locations'])
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
     return df
