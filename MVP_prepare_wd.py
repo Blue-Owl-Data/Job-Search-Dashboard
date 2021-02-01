@@ -20,8 +20,8 @@ import re
 import time
 from datetime import date
 
-###################### Build Helper Functions ####################
 
+###################### Build Helper Functions ####################
 def compute_post_date(df):
     '''
     This function computes the date of the job post based on post age
@@ -55,7 +55,25 @@ def compute_post_date(df):
     return df
 
 
-def upload_file(file_name, bucket='wdpreparedjobpostings', object_name=None):
+###################### AWS S3 Bucket, Download, Upload Data ####################
+def connect_to_S3_bucket(bucket_name='wdrawjobpostings'):
+    '''
+    This function accepts an S3 bucket name and returns
+    a file from that bucket.
+    '''
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(bucket_name)
+    
+    
+def download_from_S3_bucket():
+    '''
+
+    '''
+    s3 = boto3.client('s3')
+    s3.download_file('BUCKET_NAME', 'OBJECT_NAME', 'FILE_NAME')
+    
+    
+def upload_to_S3_bucket(file_name, bucket='wdpreparedjobpostings', object_name=None):
     """Upload a file to an S3 bucket
 
     :param file_name: File to upload
@@ -77,7 +95,6 @@ def upload_file(file_name, bucket='wdpreparedjobpostings', object_name=None):
         return False
     return True
 
-
 ################### Execution #####################
 if __name__ == "__main__":
     # Get current date
@@ -90,6 +107,7 @@ if __name__ == "__main__":
     
     # Data Prep Functions
 
+    
     # Connect to AWS S3 Account and upload web developer job posts.
     s3 = boto3.resource('s3')
     upload_file(file_name=file_name)

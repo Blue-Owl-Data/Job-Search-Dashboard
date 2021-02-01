@@ -291,7 +291,7 @@ def jobs_indeed(job_title, location):
     # Generate the urls based on job title and location (state)
     url = first_page_url = first_page_url_indeed(job_title, location)
     # Print the total number of jobs
-    print(f"Total number of {job_title} in {location}: ", num_jobs_indeed(url))
+#     print(f"Total number of {job_title} in {location}: ", num_jobs_indeed(url))
     # Set up an counter
     counter = 1
     # Create an empty dataframe to hold the job information
@@ -316,7 +316,7 @@ def jobs_indeed(job_title, location):
         page_num = int(page_num_indeed(url))
         keep_going = (counter == page_num)
     # Print the total number of jobs
-    print(f"Total number of {job_title} positions in {location}: ", df_jobs.shape[0])
+#     print(f"Total number of {job_title} positions in {location}: ", df_jobs.shape[0])
     return df_jobs
 
 
@@ -350,7 +350,7 @@ if __name__ == "__main__":
     today = today.strftime('%m%d%Y')
     
     # Name of file to be uploaded to S3 bucket, `dsrawjobpostings`
-    file_name = f"ds_tx_indeed_{today}.csv"
+    file_name = "ds_tx_indeed_" + today + ".csv"
     
     # Acquire web developer job posts located in Texas from Indeed.com
     df_ds = jobs_indeed('data scientist', 'tx')
