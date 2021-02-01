@@ -113,4 +113,4 @@ def prep_job_description_data(df, column, extra_words=[], exclude_words=[]):
     df['tokenized'] = df[column].apply(basic_clean).apply(tokenize)
     df['stemmed'] = df[column].apply(basic_clean).apply(stem)
     df['lemmatized'] = df[column].apply(basic_clean).apply(lemmatize)
-    return df[['title', column, 'tokenized', 'lemmatized', 'clean']]
+    return df
