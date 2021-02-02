@@ -87,7 +87,7 @@ def daily_update_wd():
     # Conver the datetime to string format
     today = today.strftime('%m%d%Y')
     # Name of file to be uploaded to S3 bucket, `dsrawjobpostings`
-    file_name = "ds_tx_indeed_" + today + ".csv"
+    file_name = "wd_tx_indeed_" + today + ".csv"
     
     df = pd.read_csv(file_name)
     
@@ -112,9 +112,9 @@ def prepare_job_posts_indeed():
     ready for exploration.
     '''
     # Read the job posts of web developer in TX
-    df = pd.read_csv("wd_tx_indeed_02012021.csv")
+    df = pd.read_csv("df_wd_tx.csv")
     # Convert the string date to datetime object
-    df['date'] = pd.to_datetime(df['date'])
+    df.date = pd.to_datetime(df.date)
     # Set the date as the index and sort the dataframe in descending order
     df = df.set_index('date').sort_index(ascending=False)
     # Create columns of city, state, and zipcode
@@ -236,10 +236,6 @@ if __name__ == "__main__":
     today = date.today()
     # Conver the datetime to string format
     today = today.strftime('%m%d%Y')
-    
-    # Name of the file that will be uploaded to the S3 bucket: `wdrpreparedjobpostings`
-    # Save as a JSON file for the Front and Backend Devs.
-    s3_name = f"wd_tx_indeed_{today}.json"
    
     # Acquire web developer job posting data from AWS S3 Bucket
     # Update the file with new job postings.
@@ -249,4 +245,4 @@ if __name__ == "__main__":
     df_prepared = prepare_job_posts_indeed()
    
     # Upload the JSON file of prepared job postings to the wdpreparedjobpostings
-    upload_to_S3_bucket(file_name='df_wd_tx_prepared.json', object_name=s3_name)
+    upload_to_S3_bucket(file_name='df_wd_tx_prepared.json')
