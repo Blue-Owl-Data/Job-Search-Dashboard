@@ -392,12 +392,39 @@ def daily_update_ds(df):
     df_ds_tx = pd.concat([df_ds_tx, df]).sort_index(ascending=False)
     # Remove the duplicates
     df_ds_tx = remove_duplicates(df_ds_tx)
+    # Save as csv file
+    df_ds_tx.to_csv(f"{database}df_ds_tx.csv")
     # Print the new jobs posted today
     num_new_jobs = df_ds_tx.shape[0] - num_jobs
     print("New Jobs Posted Today: ", num_new_jobs)
     return df_ds_tx
 
-def prepare_job_posts_indeed():
+def daily_update_wd(df):
+    '''
+    This function updates job posts of web developer in TX by adding the daily acquring
+    of web developer job posts in TX. 
+    '''
+    # Read the job posts of web developer in TX
+    database = env_Shi.database
+    df_wd_tx = pd.read_csv(f"{database}df_wd_tx.csv")
+    num_jobs = df_wd_tx.shape[0]
+    # Convert the date column to datetime type
+    df_wd_tx.date = pd.to_datetime(df_wd_tx.date)
+    # Set the date column as the index and sort the index
+    df_wd_tx = df_wd_tx.set_index('date').sort_index(ascending=False)
+    # Add the daily update
+    df = compute_post_date(df)
+    df_wd_tx = pd.concat([df_wd_tx, df]).sort_index(ascending=False)
+    # Remove the duplicates
+    df_wd_tx = remove_duplicates(df_wd_tx)
+    # Save as csv file
+    df_wd_tx.to_csv(f"{database}df_wd_tx.csv")
+    # Print the new jobs posted today
+    num_new_jobs = df_wd_tx.shape[0] - num_jobs
+    print("New Jobs Posted Today: ", num_new_jobs)
+    return df_wd_tx
+
+def prepare_job_posts_indeed_ds():
     '''
     The function reads the csv file of job posts and returns a cleaned dataframe
     ready for exploration.
