@@ -374,6 +374,39 @@ def compute_post_date(df):
     df = df.set_index('date').sort_index(ascending=False)
     return df
 
+def transform_old_file(df, date_string):
+    '''
+    This function accepts old daily job posts and convert the post age to post date. 
+    '''
+    # Change column name to location
+    df = df.rename(columns={'location': 'location'})
+    # Create an empty list to hold the post date
+    post_date = []
+    # For loop the column post_age and convert the values to date
+    for age in df.post_age:
+        if age == 'Just posted':
+            date = datetime.date.fromisoformat(date_string)
+            post_date.append(date)
+        elif age == 'Today':
+            date = datetime.date.fromisoformat(date_string)
+            post_date.append(date)
+        else:
+            # Extract the number
+            num = re.findall(r'(\d+)', age)[0]
+            # Cast the string number to integer
+            num = int(num)
+            # Convert the integer to timedelta object
+            num = datetime.timedelta(days=num)
+            # Compute post date        
+            date = datetime.date.fromisoformat(date_string)
+            date = date - num
+            post_date.append(date)
+    # Add post date as new column
+    df['date'] = post_date
+    # Set the column post_date as the index and sort the values
+    df = df.set_index('date').sort_index(ascending=False)
+    return df
+
 def daily_update_ds(df):
     '''
     This function updates job posts of data scientist in TX by adding the daily acquring
@@ -381,7 +414,7 @@ def daily_update_ds(df):
     '''
     # Read the job posts of data scientist in TX
     database = env_Shi.database
-    df_ds_tx = pd.read_csv(f"{database}df_ds_tx.csv")
+    df_ds_tx = pd.read_csv(f"{database}df_ds_tx_backup.csv")
     num_jobs = df_ds_tx.shape[0]
     # Convert the date column to datetime type
     df_ds_tx.date = pd.to_datetime(df_ds_tx.date)
@@ -393,7 +426,7 @@ def daily_update_ds(df):
     # Remove the duplicates
     df_ds_tx = remove_duplicates(df_ds_tx)
     # Save as csv file
-    df_ds_tx.to_csv(f"{database}df_ds_tx.csv")
+    df_ds_tx.to_csv(f"{database}df_ds_tx_backup.csv")
     # Print the new jobs posted today
     num_new_jobs = df_ds_tx.shape[0] - num_jobs
     print("New Jobs Posted Today: ", num_new_jobs)
@@ -453,7 +486,7 @@ def prepare_job_posts_indeed_ds():
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
     # Save as csv
-    df.to_csv(f"{database}df_ds_tx_prepared.csv")
+    df.to_csv(f"{database}df_ds_tx_prepared_backup.csv")
     return df
 
 def convert_to_json_ds():
@@ -464,11 +497,11 @@ def convert_to_json_ds():
     '''
     # Read the csv files of the job posts of data scientists in TX
     database = env_Shi.database
-    df = pd.read_csv(f"{database}df_ds_tx_prepared.csv")
+    df = pd.read_csv(f"{database}df_ds_tx_prepared_backup.csv")
     # Convert the csv to json
-    df.to_json(f"{database}df_ds_tx_prepared.json")
+    df.to_json(f"{database}df_ds_tx_prepared_backup.json")
     # Read and return the json file for sanity check
-    df = pd.read_json(f"{database}df_ds_tx_prepared.json")
+    df = pd.read_json(f"{database}df_ds_tx_prepared_backup.json")
     return df
 
 def prepare_job_posts_indeed_wd():
