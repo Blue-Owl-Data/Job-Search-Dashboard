@@ -89,7 +89,7 @@ def daily_update_wd():
     # Name of file to be uploaded to S3 bucket, `dsrawjobpostings`
     file_name = "wd_tx_indeed_" + today + ".csv"
     
-    df = pd.read_csv(file_name)
+    df = pd.read_csv(file_name, index_col=0)
     
     # Add the daily update
     df = compute_post_date(df)
@@ -113,10 +113,6 @@ def prepare_job_posts_indeed():
     '''
     # Read the job posts of web developer in TX
     df = pd.read_csv("df_wd_tx.csv")
-    # Convert the string date to datetime object
-    df.date = pd.to_datetime(df.date)
-    # Set the date as the index and sort the dataframe in descending order
-    df = df.set_index('date').sort_index(ascending=False)
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
