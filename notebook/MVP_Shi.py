@@ -314,7 +314,7 @@ def jobs_indeed(job_title, location):
     # Set up an checker
     keep_going = (counter == page_num)   
     # For loop through the urls to pull job information
-    while keep_going and page_num <=40:
+    while keep_going and page_num <=35:
         df = acquire_page_indeed(url)
         print("--------------------------------")
         print("Page: ", page_num)
@@ -459,16 +459,11 @@ def daily_update_wd(df):
 
 def prepare_job_posts_indeed_ds():
     '''
-    The function reads the csv file of job posts and returns a cleaned dataframe
-    ready for exploration.
+    The function cleans the csv file of data scientist job posts and save as json. 
     '''
     # Read the job posts of data scientist in TX
     database = env_Shi.database
-    df = pd.read_csv(f"{database}df_ds_tx.csv")
-    # Conver the string date to datetime object
-    df.date = pd.to_datetime(df.date)
-    # Set the date as the index and sort the dataframe in descending order
-    df = df.set_index('date').sort_index(ascending=False)
+    df = pd.read_csv(f"{database}df_ds_tx_backup.csv")
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
@@ -485,37 +480,17 @@ def prepare_job_posts_indeed_ds():
     df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
-    # Save as csv
-    df.to_csv(f"{database}df_ds_tx_prepared_backup.csv")
-    return df
-
-def convert_to_json_ds():
-    '''
-    This function reads prepared the csv file of the job posts of data scientists, 
-    converts the csv file to json, and then reload the json file as pandas dataframe
-    for sanity check. 
-    '''
-    # Read the csv files of the job posts of data scientists in TX
-    database = env_Shi.database
-    df = pd.read_csv(f"{database}df_ds_tx_prepared_backup.csv")
-    # Convert the csv to json
-    df.to_json(f"{database}df_ds_tx_prepared_backup.json")
-    # Read and return the json file for sanity check
-    df = pd.read_json(f"{database}df_ds_tx_prepared_backup.json")
+    # Save a JSON version of the prepared data
+    df.to_json(f"{database}df_ds_tx_prepared.json", orient='records')
     return df
 
 def prepare_job_posts_indeed_wd():
     '''
-    The function reads the csv file of job posts and returns a cleaned dataframe
-    ready for exploration.
+   The function cleans the csv file of web developer job posts and save as json. 
     '''
-    # Read the job posts of data scientist in TX
+    # Read the job posts of web developer in TX
     database = env_Shi.database
     df = pd.read_csv(f"{database}df_wd_tx.csv")
-    # Conver the string date to datetime object
-    df.date = pd.to_datetime(df.date)
-    # Set the date as the index and sort the dataframe in descending order
-    df = df.set_index('date').sort_index(ascending=False)
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
@@ -532,23 +507,8 @@ def prepare_job_posts_indeed_wd():
     df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
-    # Save as csv
-    df.to_csv(f"{database}df_wd_tx_prepared.csv")
-    return df
-
-def convert_to_json_wd():
-    '''
-    This function reads prepared the csv file of the job posts of web developer, 
-    converts the csv file to json, and then reload the json file as pandas dataframe
-    for sanity check. 
-    '''
-    # Read the csv files of the job posts of web developer in TX
-    database = env_Shi.database
-    df = pd.read_csv(f"{database}df_wd_tx_prepared.csv")
-    # Convert csv to json
-    df.to_json(f"{database}df_wd_tx_prepared.json")
-    # Read and return the json file for sanity check
-    df = pd.read_json(f"{database}df_wd_tx_prepared.json")
+    # Save a JSON version of the prepared data
+    df.to_json(f"{database}df_wd_tx_prepared.json", orient='records')
     return df
 
 ########################### Exploration #################################
