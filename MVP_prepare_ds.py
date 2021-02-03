@@ -89,7 +89,7 @@ def daily_update_ds():
     # Name of file to be uploaded to S3 bucket, `dsrawjobpostings`
     file_name = "ds_tx_indeed_" + today + ".csv"
     
-    df = pd.read_csv(file_name)
+    df = pd.read_csv(file_name, index_col=0)
     
     # Add the daily update
     df = compute_post_date(df)
@@ -108,15 +108,10 @@ def daily_update_ds():
 
 def prepare_job_posts_indeed():
     '''
-    The function reads the csv file of job posts and returns a cleaned dataframe
-    ready for exploration.
+    The function cleans the csv file of data scientist job posts and save as json.
     '''
     # Read the job posts of data scientist in TX
     df = pd.read_csv("df_ds_tx.csv")
-    # Conver the string date to datetime object
-    df.date = pd.to_datetime(df.date)
-    # Set the date as the index and sort the dataframe in descending order
-    df = df.set_index('date').sort_index(ascending=False)
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
