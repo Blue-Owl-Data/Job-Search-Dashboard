@@ -31,14 +31,12 @@ def compute_post_date(df):
     '''
     # Create an empty list to hold the post date
     post_date = []
+    # Create a variable to store today's date
+    today = datetime.date.today()
     # For loop the column post_age and convert the values to date
     for age in df.post_age:
-        if age == 'Just posted':
-            date = datetime.date.today()
-            post_date.append(date)
-        elif age == 'Today':
-            date = datetime.date.today()
-            post_date.append(date)
+        if age.isin(['Just posted', 'Today']):
+            post_date.append(today)
         else:
             # Extract the number
             num = re.findall(r'(\d+)', age)[0]
@@ -46,9 +44,8 @@ def compute_post_date(df):
             num = int(num)
             # Convert the integer to timedelta object
             num = datetime.timedelta(days=num)
-            # Compute post date        
-            date = datetime.date.today()
-            date = date - num
+            # Compute post date
+            date = today - num
             post_date.append(date)
     # Add post date as new column
     df['date'] = post_date
@@ -89,7 +86,7 @@ def daily_update_wd():
     # Name of file to be uploaded to S3 bucket, `dsrawjobpostings`
     file_name = "wd_tx_indeed_" + today + ".csv"
     
-    df = pd.read_csv(file_name, index_col=0)
+    df = pd.read_csv(file_name)
     
     # Add the daily update
     df = compute_post_date(df)
@@ -113,6 +110,10 @@ def prepare_job_posts_indeed():
     '''
     # Read the job posts of web developer in TX
     df = pd.read_csv("df_wd_tx.csv")
+    # Convert the string date to datetime object
+    df.date = pd.to_datetime(df.date)
+    # Set the date as the index and sort the dataframe in descending order
+    df = df.set_index('date').sort_index(ascending=False)
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
@@ -151,9 +152,6 @@ def list_bucket_files(bucket_name='wdrawjobpostings'):
         A list of file names contained within the specified
         AWS S3 bucket.
     '''
-    # Connect to AWS Account and access the available S3 buckets.
-    s3 = boto3.resource('s3')
-
     # Select the raw web developer job posting bucket.
     wd_job_bucket = s3.Bucket(bucket_name)
     
@@ -228,10 +226,6 @@ def upload_to_S3_bucket(file_name, bucket='wdpreparedjobpostings', object_name=N
 if __name__ == "__main__":
     # Connect to AWS account S3 buckets.
     s3 = boto3.resource('s3')
-    # Get current date
-    today = date.today()
-    # Conver the datetime to string format
-    today = today.strftime('%m%d%Y')
    
     # Acquire web developer job posting data from AWS S3 Bucket
     # Update the file with new job postings.
