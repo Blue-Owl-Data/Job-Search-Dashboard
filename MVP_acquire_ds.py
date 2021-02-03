@@ -352,13 +352,12 @@ if __name__ == "__main__":
     # Name of file to be uploaded to S3 bucket, `dsrawjobpostings`
     file_name = "ds_tx_indeed_" + today + ".csv"
     
-    # Acquire web developer job posts located in Texas from Indeed.com
+    # Acquire data scientist job posts located in Texas from Indeed.com
     df_ds = jobs_indeed('data scientist', 'tx')
-    # Save as csv file
-    df_ds.to_csv(file_name)
 
     # Save as csv file
     df_ds.to_csv(file_name)
+
     # Connect to AWS S3 Account and upload web developer job posts.
     s3 = boto3.resource('s3')
     upload_file(file_name=file_name)
