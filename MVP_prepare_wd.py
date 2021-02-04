@@ -118,11 +118,11 @@ def prepare_job_posts_indeed():
     # df.date = pd.to_datetime(df.date)
     # # Set the date as the index and sort the dataframe in descending order
     # df = df.set_index('date').sort_index(ascending=False)
-    # Create columns of city, state, and zipcode
     '''
     The codes above are inactivated because using 'records' for `orient` does not preserved the index labels.
     '''
     
+    # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
     location.city = location.city.apply(lambda i: 0 if i == 'United States' else i)
