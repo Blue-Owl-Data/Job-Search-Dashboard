@@ -344,7 +344,7 @@ def prepare_job_posts_indeed():
     # Drop the column post_age
     df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
-    df = .prep_job_description_data(df, 'job_description')
+    df = prep_job_description_data(df, 'job_description')
     # Save a JSON version of the prepared data
     df.to_json('df_wd_tx_prepared.json', orient='records')
     return df
