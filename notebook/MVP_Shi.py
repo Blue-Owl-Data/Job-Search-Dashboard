@@ -647,8 +647,6 @@ def trigrams_frequency_v2(d_words):
     trigrams_counts.sort_values(by='all', ascending=False, inplace=True)
     return trigrams_counts
 
-# Define a function to compute the frequence of the mono-, bi-, and tri-grams of the job description
-
 def everygram_frequency_v1(d_words, max_len=3):
     '''
     This function accetps the dictionary produced by the function `words_variables_v1` and 
@@ -670,31 +668,27 @@ def everygram_frequency_v1(d_words, max_len=3):
     everygram = pd.Series(everygram).value_counts()
     return everygram
 
-def top_skills_ds_v1(k):
+def top_skills_ds_v1(k, library):
     '''
-    This function accepts a positive integer k and 
-    returns a dataframe containing the top k skills needed
-    for data scientist positions.
+    This function accepts a positive integer k and a skillset library and 
+    returns a dataframe containing the top k skills needed for data scientist positions.
     '''
     # Import the file path
     database = env_Shi.database
     # Load the prepared dataframe with job search results
-    df = pd.read_csv(f"{database}df_tx_ds.csv", index_col=0)
+    df = pd.read_json(f"{database}df_ds_tx_prepared_backup.json")
     # Create a string of all words that appear in the job description
     dic = words_variables_v1(df)
     # Compute the words frequency
-    df_word_frequency = word_frequency_v1(dic)
-    # Define a library that has a complete sillset for data scientist
-    library = ['python', 'r', 'sql', 'tableau', 'scikitlearn', 'tensorflow', 'pytorch', 'aws', 'hadoop', 'hive', 
-        'impala', 'matlab', 'model', 'algorithm', 'storytelling', 'statistic', 'etl', 'exploration', 'extraction', 
-        'sharepoint', 'dashboard']
+    everygram_frequency = everygram_frequency_v1(dic)
     # Create a empty dataframe to hold the rank of the skills
     df_skills = pd.DataFrame()
     # For loop through the library to find out the frequency of the skills mentioned in the job description
     for skill in library:
-        mask = (df_word_frequency.index == skill)
-        df = df_word_frequency[mask]
+        mask = ( everygram_frequency.index == skill)
+        df =  everygram_frequency[mask]
         df_skills = pd.concat([df_skills, df])
+    df_skills.columns = dic.keys()
     df_skills.sort_values(by='frequency', ascending=False, inplace=True)
     return df_skills.head(k)
 
