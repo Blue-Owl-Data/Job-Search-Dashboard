@@ -30,7 +30,7 @@ def everygram_frequency(d_words, max_len=3):
     grams = list(grams)
     # Create an empty list to hold mono-, bi-, and tri-grams
     everygram = []
-    # For loop the list of tuples and convert the grams to strings
+    # For loop the list of tuples and convert the tuple grams to string grams
     for gram in grams:
         str_gram = gram[0]
         for i in gram[1:]:
