@@ -414,7 +414,7 @@ def daily_update_ds(df):
     '''
     # Read the job posts of data scientist in TX
     database = env_Shi.database
-    df_ds_tx = pd.read_csv(f"{database}df_ds_tx_backup.csv")
+    df_ds_tx = pd.read_csv(f"{database}df_ds_tx.csv")
     num_jobs = df_ds_tx.shape[0]
     # Convert the date column to datetime type
     df_ds_tx.date = pd.to_datetime(df_ds_tx.date)
@@ -426,7 +426,7 @@ def daily_update_ds(df):
     # Remove the duplicates
     df_ds_tx = remove_duplicates(df_ds_tx)
     # Save as csv file
-    df_ds_tx.to_csv(f"{database}df_ds_tx_backup.csv")
+    df_ds_tx.to_csv(f"{database}df_ds_tx.csv")
     # Print the new jobs posted today
     num_new_jobs = df_ds_tx.shape[0] - num_jobs
     print("New Jobs Posted Today: ", num_new_jobs)
@@ -463,7 +463,7 @@ def prepare_job_posts_indeed_ds():
     '''
     # Read the job posts of data scientist in TX
     database = env_Shi.database
-    df = pd.read_csv(f"{database}df_ds_tx_backup.csv")
+    df = pd.read_csv(f"{database}df_ds_tx.csv")
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
@@ -582,7 +582,7 @@ def bigrams_frequency_v1(d_words):
     This function accept the dictionary created by function words_variables_v1
     and return the word frequency in the job description. 
     '''
-    # Create a dataframe to hold the word frequency
+    # Create a dataframe to hold the frequency of bigrams
     word_counts = pd.DataFrame()
     # Compute the words frequency
     freq = pd.Series(list(nltk.ngrams(d_words['frequency'].split(), 2))).value_counts()
@@ -601,7 +601,7 @@ def bigrams_frequency_v2(d_words):
     '''
     # Read the company names from the dictionary
     companies = d_words.keys()
-    # Create a dataframe to hold the word frequency
+    # Create a dataframe to hold the frequency of bigrams
     bigrams_counts = pd.DataFrame()
     # For loop through the companies and generate the word frequency in their job descriptions
     for company in companies:
@@ -617,7 +617,7 @@ def trigrams_frequency_v1(d_words):
     This function accept the dictionary created by function words_variables_v1
     and return the word frequency in the job description. 
     '''
-    # Create a dataframe to hold the word frequency
+    # Create a dataframe to hold the frequency of trigrams
     word_counts = pd.DataFrame()
     # Compute the words frequency
     freq = pd.Series(list(nltk.ngrams(d_words['frequency'].split(), 3))).value_counts()
@@ -647,31 +647,48 @@ def trigrams_frequency_v2(d_words):
     trigrams_counts.sort_values(by='all', ascending=False, inplace=True)
     return trigrams_counts
 
-def top_skills_ds_v1(k):
+def everygram_frequency_v1(d_words, max_len=3):
     '''
-    This function accepts a positive integer k and 
-    returns a dataframe containing the top k skills needed
-    for data scientist positions.
+    This function accetps the dictionary produced by the function `words_variables_v1` and 
+    return mono-, bi-, and tri-grams along with their frequency. 
+    '''
+    # Generate mono-, bi-, and tri-grams
+    grams = nltk.everygrams(d_words['frequency'].split(), max_len=max_len) # dtype of grams: <class 'genertor'>
+    # Convert to a list of tuples
+    grams = list(grams)
+    # Create an empty list to hold mono-, bi-, and tri-grams
+    everygram = []
+    # For loop the list of tuples and convert the grams to strings
+    for gram in grams:
+        str_gram = gram[0]
+        for i in gram[1:]:
+            str_gram = str_gram + ' ' + i
+        everygram.append(str_gram)
+    # Compute the frequency of the everygrams
+    everygram = pd.Series(everygram).value_counts()
+    return everygram
+
+def top_skills_ds_v1(k, library):
+    '''
+    This function accepts a positive integer k and a skillset library and 
+    returns a dataframe containing the top k skills needed for data scientist positions.
     '''
     # Import the file path
     database = env_Shi.database
     # Load the prepared dataframe with job search results
-    df = pd.read_csv(f"{database}df_tx_ds.csv", index_col=0)
+    df = pd.read_json(f"{database}df_ds_tx_prepared_backup.json")
     # Create a string of all words that appear in the job description
     dic = words_variables_v1(df)
     # Compute the words frequency
-    df_word_frequency = word_frequency_v1(dic)
-    # Define a library that has a complete sillset for data scientist
-    library = ['python', 'r', 'sql', 'tableau', 'scikitlearn', 'tensorflow', 'pytorch', 'aws', 'hadoop', 'hive', 
-        'impala', 'matlab', 'model', 'algorithm', 'storytelling', 'statistic', 'etl', 'exploration', 'extraction', 
-        'sharepoint', 'dashboard']
+    everygram_frequency = everygram_frequency_v1(dic)
     # Create a empty dataframe to hold the rank of the skills
     df_skills = pd.DataFrame()
     # For loop through the library to find out the frequency of the skills mentioned in the job description
     for skill in library:
-        mask = (df_word_frequency.index == skill)
-        df = df_word_frequency[mask]
+        mask = ( everygram_frequency.index == skill)
+        df =  everygram_frequency[mask]
         df_skills = pd.concat([df_skills, df])
+    df_skills.columns = dic.keys()
     df_skills.sort_values(by='frequency', ascending=False, inplace=True)
     return df_skills.head(k)
 
