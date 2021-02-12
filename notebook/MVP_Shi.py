@@ -295,15 +295,13 @@ def acquire_page_indeed(url):
     df = pd.DataFrame(d)
     return df
 
-def jobs_indeed(job_title, location):
+def jobs_indeed(job_title, location, max_page=35):
     '''
-    This function accepts the job title and location and return 
-    the job information pull from Indeed.com.
+    This function accepts the job title and location and return the job information (35 pages by default) 
+    pulled from Indeed.com.
     '''
     # Generate the urls based on job title and location (state)
     url = first_page_url = first_page_url_indeed(job_title, location)
-    # Print the total number of jobs
-    print(f"Total number of {job_title} in {location}: ", num_jobs_indeed(url))
     # Set up an counter
     counter = 1
     # Create an empty dataframe to hold the job information
@@ -314,12 +312,13 @@ def jobs_indeed(job_title, location):
     # Set up an checker
     keep_going = (counter == page_num)   
     # For loop through the urls to pull job information
-    while keep_going and page_num <=35:
+    while keep_going and page_num <= max_page:
         df = acquire_page_indeed(url)
         print("--------------------------------")
         print("Page: ", page_num)
         print("--------------------------------")
         df_jobs = df_jobs.append(df, ignore_index=True)
+        df_jobs.to_csv("df_jobs_backup.csv")
         time.sleep(180)
         dic = {'start': page_num*10}
         relative_url = urllib.parse.urlencode(dic)
