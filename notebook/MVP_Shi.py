@@ -511,6 +511,27 @@ def prepare_job_posts_indeed_wd():
     return df
 
 ########################### Exploration #################################
+def read_job_postings_json(job_title):
+    '''
+    This function reads the JSON file of prepared job postings into a pandas dataframe 
+    based on a job title and set the date as the index.
+    '''
+    # Load the file path of the local database
+    database = env_Shi.database
+    # Create the file name
+    match = re.findall(r'([a-z])\w+', job_title)
+    job_abbre = ''.join(match)
+    file_name = 'df_' + job_abbre + '_tx_prepared_backup.json'
+    # Read the JSON file into a pandas dataframe
+    df = pd.read_json(f'{database}{file_name}')
+    # Print the numbr of job posts
+    print("Number of Job Postings: ", df.shape[0])
+    # Convert the string date to datetime
+    df.date = pd.to_datetime(df.date)
+    # Set the date as the index and sort the dataframe
+    df = df.set_index('date').sort_index(ascending=False)
+    return df
+
 def words_variables_v1(df):
     '''
     This function accepts the dataframe with cleaned job description 
