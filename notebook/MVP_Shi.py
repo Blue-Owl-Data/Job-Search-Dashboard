@@ -406,6 +406,14 @@ def transform_old_file(df, date_string):
     df = df.set_index('date').sort_index(ascending=False)
     return df
 
+def clean_job_title(title):
+    '''
+    This function removes the "\nnew" and "..." in the job title.
+    '''
+    title = title.split(sep="\nnew")[0]
+    title = title.split(sep="...")[0]
+    return title
+
 def daily_update_ds(df):
     '''
     This function updates job posts of data scientist in TX by adding the daily acquring
@@ -519,7 +527,7 @@ def read_job_postings_json(job_title):
     # Load the file path of the local database
     database = env_Shi.database
     # Create the file name
-    match = re.findall(r'([a-z])\w+', job_title)
+    match = re.findall(r'([a-z])\w+', job_title) # match is a list of strings
     job_abbre = ''.join(match)
     file_name = 'df_' + job_abbre + '_tx_prepared_backup.json'
     # Read the JSON file into a pandas dataframe
