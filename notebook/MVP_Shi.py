@@ -470,7 +470,7 @@ def prepare_job_posts_indeed_ds():
     '''
     # Read the job posts of data scientist in TX
     database = env_Shi.database
-    df = pd.read_csv(f"{database}df_ds_tx.csv")
+    df = pd.read_csv(f"{database}df_ds_tx_backup.csv")
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
@@ -487,9 +487,13 @@ def prepare_job_posts_indeed_ds():
     df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
+    # Clean the job title
+    df.title = df.title.apply(clean_job_title)
     # Save a JSON version of the prepared data
-    df.to_json(f"{database}df_ds_tx_prepared.json", orient='records')
+    df.to_json(f"{database}df_ds_tx_prepared_backup.json", orient='records')
     return df
+
+# Define a function to prepare the job posts of web developer
 
 def prepare_job_posts_indeed_wd():
     '''
@@ -497,7 +501,7 @@ def prepare_job_posts_indeed_wd():
     '''
     # Read the job posts of web developer in TX
     database = env_Shi.database
-    df = pd.read_csv(f"{database}df_wd_tx.csv")
+    df = pd.read_csv(f"{database}df_wd_tx_backup.csv")
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
@@ -514,8 +518,10 @@ def prepare_job_posts_indeed_wd():
     df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
+    # Clean the job title
+    df.title = df.title.apply(clean_job_title)
     # Save a JSON version of the prepared data
-    df.to_json(f"{database}df_wd_tx_prepared.json", orient='records')
+    df.to_json(f"{database}df_wd_tx_prepared_backup.json", orient='records')
     return df
 
 ########################### Exploration #################################
