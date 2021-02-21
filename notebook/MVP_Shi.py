@@ -525,6 +525,15 @@ def prepare_job_posts_indeed_wd():
     return df
 
 ########################### Exploration #################################
+def job_title_initials(job_title):
+    '''
+    This function accepts the job title in a string format (all lower case) and 
+    returns the initials of the job titles.
+    '''
+    match = re.findall(r'([a-z])\w+', job_title)
+    initials = ''.join(match)
+    return initials
+
 def read_job_postings_json(job_title):
     '''
     This function reads the JSON file of prepared job postings into a pandas dataframe 
@@ -533,9 +542,8 @@ def read_job_postings_json(job_title):
     # Load the file path of the local database
     database = env_Shi.database
     # Create the file name
-    match = re.findall(r'([a-z])\w+', job_title) # match is a list of strings
-    job_abbre = ''.join(match)
-    file_name = 'df_' + job_abbre + '_tx_prepared_backup.json'
+    initials = job_title_initials(job_title)
+    file_name = 'df_' + initials + '_tx_prepared_backup.json'
     # Read the JSON file into a pandas dataframe
     df = pd.read_json(f'{database}{file_name}')
     # Print the numbr of job posts
