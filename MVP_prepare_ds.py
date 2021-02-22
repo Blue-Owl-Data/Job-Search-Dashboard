@@ -221,6 +221,15 @@ def daily_update_ds():
     return df_ds_tx
 
 
+def clean_job_title(title):
+    '''
+    This function removes the "\nnew" and "..." in the job title.
+    '''
+    title = title.split(sep="\nnew")[0]
+    title = title.split(sep='...')[0]
+    return title
+
+
 def get_geodata(df, credentials="Blue-Owl-Data"):
     '''
     This function accepts a dataframe of job postings that has
@@ -329,10 +338,16 @@ def prepare_job_posts_indeed():
     df = add_coordinates(df)
     # Replace the missing values in the company rating with 0
     df.company_rating = df.company_rating.apply(lambda i: 0 if i == 'missing' else i)
-    # Drop the column post_age
-    df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
     df = prep_job_description_data(df, 'job_description')
+    # Clean the job title
+    df.title = df.title.apply(clean_job_title)
+    # Drop the redundant columns post_age and location
+    redundant_cols = ['post_age', 'location', 'tokenized', 'stemmed', 'lemmatized']
+    df = df.drop(columns=redundant_cols)
+    # Alther the data type of company_rating and zipcode
+    df.company_rating = df.company_rating.apply(lambda i: float(i))
+    df.zipcode = df.zipcode.apply(lambda i: int(i))
     # Save a JSON version of the prepared data
     df.to_json('df_ds_tx_prepared.json', orient='records')
     return df
