@@ -40,7 +40,7 @@ def everygram_frequency(d_words, max_len=3):
     everygram = pd.Series(everygram).value_counts()
     return everygram
 
-def top_skills(df, k, library):
+def top_skills(df, k, library, library_type):
     '''
     This function accepts a prepared dataframe with the job descriptioins, a positive integer k, and 
     a library of skills then returns a dataframe containing the top k skills needed .
@@ -58,4 +58,8 @@ def top_skills(df, k, library):
         df_skills = pd.concat([df_skills, df])
     df_skills.columns = dic.keys()
     df_skills.sort_values(by='frequency', ascending=False, inplace=True)
+    # Reset the index
+    df_skills.reset_index(inplace=True)
+    # Rename the column name
+    df_skills.rename(columns={'index': f'top{k}_{library_type}_skills'}, inplace=True)
     return df_skills.head(k)
