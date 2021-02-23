@@ -295,15 +295,13 @@ def acquire_page_indeed(url):
     df = pd.DataFrame(d)
     return df
 
-def jobs_indeed(job_title, location):
+def jobs_indeed(job_title, location, max_page=35):
     '''
-    This function accepts the job title and location and return 
-    the job information pull from Indeed.com.
+    This function accepts the job title and location and return the job information (35 pages by default) 
+    pulled from Indeed.com.
     '''
     # Generate the urls based on job title and location (state)
     url = first_page_url = first_page_url_indeed(job_title, location)
-    # Print the total number of jobs
-    print(f"Total number of {job_title} in {location}: ", num_jobs_indeed(url))
     # Set up an counter
     counter = 1
     # Create an empty dataframe to hold the job information
@@ -314,12 +312,13 @@ def jobs_indeed(job_title, location):
     # Set up an checker
     keep_going = (counter == page_num)   
     # For loop through the urls to pull job information
-    while keep_going and page_num <=35:
+    while keep_going and page_num <= max_page:
         df = acquire_page_indeed(url)
         print("--------------------------------")
         print("Page: ", page_num)
         print("--------------------------------")
         df_jobs = df_jobs.append(df, ignore_index=True)
+        df_jobs.to_csv("df_jobs_backup.csv")
         time.sleep(180)
         dic = {'start': page_num*10}
         relative_url = urllib.parse.urlencode(dic)
@@ -407,6 +406,14 @@ def transform_old_file(df, date_string):
     df = df.set_index('date').sort_index(ascending=False)
     return df
 
+def clean_job_title(title):
+    '''
+    This function removes the "\nnew" and "..." in the job title.
+    '''
+    title = title.split(sep="\nnew")[0]
+    title = title.split(sep="...")[0]
+    return title
+
 def daily_update_ds(df):
     '''
     This function updates job posts of data scientist in TX by adding the daily acquring
@@ -414,7 +421,7 @@ def daily_update_ds(df):
     '''
     # Read the job posts of data scientist in TX
     database = env_Shi.database
-    df_ds_tx = pd.read_csv(f"{database}df_ds_tx_backup.csv")
+    df_ds_tx = pd.read_csv(f"{database}df_ds_tx.csv")
     num_jobs = df_ds_tx.shape[0]
     # Convert the date column to datetime type
     df_ds_tx.date = pd.to_datetime(df_ds_tx.date)
@@ -426,7 +433,7 @@ def daily_update_ds(df):
     # Remove the duplicates
     df_ds_tx = remove_duplicates(df_ds_tx)
     # Save as csv file
-    df_ds_tx.to_csv(f"{database}df_ds_tx_backup.csv")
+    df_ds_tx.to_csv(f"{database}df_ds_tx.csv")
     # Print the new jobs posted today
     num_new_jobs = df_ds_tx.shape[0] - num_jobs
     print("New Jobs Posted Today: ", num_new_jobs)
@@ -480,9 +487,13 @@ def prepare_job_posts_indeed_ds():
     df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
+    # Clean the job title
+    df.title = df.title.apply(clean_job_title)
     # Save a JSON version of the prepared data
-    df.to_json(f"{database}df_ds_tx_prepared.json", orient='records')
+    df.to_json(f"{database}df_ds_tx_prepared_backup.json", orient='records')
     return df
+
+# Define a function to prepare the job posts of web developer
 
 def prepare_job_posts_indeed_wd():
     '''
@@ -490,7 +501,7 @@ def prepare_job_posts_indeed_wd():
     '''
     # Read the job posts of web developer in TX
     database = env_Shi.database
-    df = pd.read_csv(f"{database}df_wd_tx.csv")
+    df = pd.read_csv(f"{database}df_wd_tx_backup.csv")
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
@@ -507,11 +518,42 @@ def prepare_job_posts_indeed_wd():
     df = df.drop(columns=['post_age', 'location'])
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
+    # Clean the job title
+    df.title = df.title.apply(clean_job_title)
     # Save a JSON version of the prepared data
-    df.to_json(f"{database}df_wd_tx_prepared.json", orient='records')
+    df.to_json(f"{database}df_wd_tx_prepared_backup.json", orient='records')
     return df
 
 ########################### Exploration #################################
+def job_title_initials(job_title):
+    '''
+    This function accepts the job title in a string format (all lower case) and 
+    returns the initials of the job titles.
+    '''
+    match = re.findall(r'([a-z])\w+', job_title)
+    initials = ''.join(match)
+    return initials
+
+def read_job_postings_json(job_title):
+    '''
+    This function reads the JSON file of prepared job postings into a pandas dataframe 
+    based on a job title and set the date as the index.
+    '''
+    # Load the file path of the local database
+    database = env_Shi.database
+    # Create the file name
+    initials = job_title_initials(job_title)
+    file_name = 'df_' + initials + '_tx_prepared_backup.json'
+    # Read the JSON file into a pandas dataframe
+    df = pd.read_json(f'{database}{file_name}')
+    # Print the numbr of job posts
+    print("Number of Job Postings: ", df.shape[0])
+    # Convert the string date to datetime
+    df.date = pd.to_datetime(df.date)
+    # Set the date as the index and sort the dataframe
+    df = df.set_index('date').sort_index(ascending=False)
+    return df
+
 def words_variables_v1(df):
     '''
     This function accepts the dataframe with cleaned job description 
@@ -582,7 +624,7 @@ def bigrams_frequency_v1(d_words):
     This function accept the dictionary created by function words_variables_v1
     and return the word frequency in the job description. 
     '''
-    # Create a dataframe to hold the word frequency
+    # Create a dataframe to hold the frequency of bigrams
     word_counts = pd.DataFrame()
     # Compute the words frequency
     freq = pd.Series(list(nltk.ngrams(d_words['frequency'].split(), 2))).value_counts()
@@ -601,7 +643,7 @@ def bigrams_frequency_v2(d_words):
     '''
     # Read the company names from the dictionary
     companies = d_words.keys()
-    # Create a dataframe to hold the word frequency
+    # Create a dataframe to hold the frequency of bigrams
     bigrams_counts = pd.DataFrame()
     # For loop through the companies and generate the word frequency in their job descriptions
     for company in companies:
@@ -617,7 +659,7 @@ def trigrams_frequency_v1(d_words):
     This function accept the dictionary created by function words_variables_v1
     and return the word frequency in the job description. 
     '''
-    # Create a dataframe to hold the word frequency
+    # Create a dataframe to hold the frequency of trigrams
     word_counts = pd.DataFrame()
     # Compute the words frequency
     freq = pd.Series(list(nltk.ngrams(d_words['frequency'].split(), 3))).value_counts()
@@ -647,31 +689,48 @@ def trigrams_frequency_v2(d_words):
     trigrams_counts.sort_values(by='all', ascending=False, inplace=True)
     return trigrams_counts
 
-def top_skills_ds_v1(k):
+def everygram_frequency_v1(d_words, max_len=3):
     '''
-    This function accepts a positive integer k and 
-    returns a dataframe containing the top k skills needed
-    for data scientist positions.
+    This function accetps the dictionary produced by the function `words_variables_v1` and 
+    return mono-, bi-, and tri-grams along with their frequency. 
+    '''
+    # Generate mono-, bi-, and tri-grams
+    grams = nltk.everygrams(d_words['frequency'].split(), max_len=max_len) # dtype of grams: <class 'genertor'>
+    # Convert to a list of tuples
+    grams = list(grams)
+    # Create an empty list to hold mono-, bi-, and tri-grams
+    everygram = []
+    # For loop the list of tuples and convert the grams to strings
+    for gram in grams:
+        str_gram = gram[0]
+        for i in gram[1:]:
+            str_gram = str_gram + ' ' + i
+        everygram.append(str_gram)
+    # Compute the frequency of the everygrams
+    everygram = pd.Series(everygram).value_counts()
+    return everygram
+
+def top_skills_ds_v1(k, library):
+    '''
+    This function accepts a positive integer k and a skillset library and 
+    returns a dataframe containing the top k skills needed for data scientist positions.
     '''
     # Import the file path
     database = env_Shi.database
     # Load the prepared dataframe with job search results
-    df = pd.read_csv(f"{database}df_tx_ds.csv", index_col=0)
+    df = pd.read_json(f"{database}df_ds_tx_prepared_backup.json")
     # Create a string of all words that appear in the job description
     dic = words_variables_v1(df)
     # Compute the words frequency
-    df_word_frequency = word_frequency_v1(dic)
-    # Define a library that has a complete sillset for data scientist
-    library = ['python', 'r', 'sql', 'tableau', 'scikitlearn', 'tensorflow', 'pytorch', 'aws', 'hadoop', 'hive', 
-        'impala', 'matlab', 'model', 'algorithm', 'storytelling', 'statistic', 'etl', 'exploration', 'extraction', 
-        'sharepoint', 'dashboard']
+    everygram_frequency = everygram_frequency_v1(dic)
     # Create a empty dataframe to hold the rank of the skills
     df_skills = pd.DataFrame()
     # For loop through the library to find out the frequency of the skills mentioned in the job description
     for skill in library:
-        mask = (df_word_frequency.index == skill)
-        df = df_word_frequency[mask]
+        mask = ( everygram_frequency.index == skill)
+        df =  everygram_frequency[mask]
         df_skills = pd.concat([df_skills, df])
+    df_skills.columns = dic.keys()
     df_skills.sort_values(by='frequency', ascending=False, inplace=True)
     return df_skills.head(k)
 
