@@ -331,17 +331,6 @@ def jobs_indeed(job_title, location, max_page=35):
     return df_jobs
 
 ########################### Preparation #################################
-def job_title_initials():
-    '''
-    This function accepts the job title in a string format (all lower case) and 
-    returns the initials of the job titles.
-    '''
-    print("Enter the job title: ")
-    job_title = input()
-    match = re.findall(r'([a-z])\w+', job_title)
-    initials = ''.join(match)
-    return initials
-
 def remove_duplicates(df):
     '''
     This function removes the duplicates in the dataframe
@@ -425,38 +414,32 @@ def clean_job_title(title):
     title = title.split(sep="...")[0]
     return title
 
-def daily_update(df):
+def daily_update(df_new):
     '''
-    This function updates job posts of web developer in TX by adding the daily acquring
-    of web developer job posts in TX. 
+    This function updates job posts by adding the daily acquring of job posts in TX. 
     '''
-    # Read the job posts of web developer in TX
+    # Load the job posts based on the inputted job title
     database = env_Shi.database
-    initials = job_title_initials()
-    df_tx = pd.read_csv(f"{database}df_{initials}_tx_backup.csv")
-    num_jobs = df_tx.shape[0]
+    print("Enter the INITIALS of the job title:")
+    initials = input()
+    df = pd.read_csv(f"{database}df_{initials}_tx_backup.csv")
+    num_jobs = df.shape[0]
     # Convert the date column to datetime type
-    df_tx.date = pd.to_datetime(df_tx.date)
+    df.date = pd.to_datetime(df.date)
     # Set the date column as the index and sort the index
-    df_tx = df_tx.set_index('date').sort_index(ascending=False)
+    df = df.set_index('date').sort_index(ascending=False)
     # Add the daily update
-    df = compute_post_date(df)
-    df_tx = pd.concat([df_tx, df]).sort_index(ascending=False)
+    df_new = compute_post_date(df_new)
+    df = pd.concat([df, df_new]).sort_index(ascending=False)
     # Remove the duplicates
-    df_tx = remove_duplicates(df_tx)
+    df = remove_duplicates(df)
     # Save as csv file
-    df_tx.to_csv(f"{database}df_{initials}_tx_backup.csv")
-    num_new_jobs = df_tx.shape[0] - num_jobs
+    df.to_csv(f"{database}df_{initials}_tx_backup.csv")
+    num_new_jobs = df.shape[0] - num_jobs
     print("New Jobs of Posted Today: ", num_new_jobs)
-    return df_tx
-
-def prepare_job_posts_indeed():
-    '''
-    The function cleans the csv file of web developer job posts and save as json. 
-    '''
-    # Read the job posts of web developer in TX
-    database = env_Shi.database
-    initials = job_title_initials()
+    
+    # Used to be a seperate function `prepare_job_posts_indeed()`
+    # Re-Load the dataset
     df = pd.read_csv(f"{database}df_{initials}_tx_backup.csv")
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
@@ -464,7 +447,7 @@ def prepare_job_posts_indeed():
     location.city = location.city.apply(lambda i: 0 if i == 'United States' else i)
     location.city = location.city.apply(lambda i: 0 if i == 'Texas' else i)
     location.zipcode = location.zipcode.apply(lambda i: 0 if re.findall(r"(\d+)", str(i)) == [] 
-                                          else re.findall(r"(\d+)", str(i))[0])
+                                              else re.findall(r"(\d+)", str(i))[0])
     df['city'] = location.city
     df['state'] = 'TX'
     df['zipcode'] = location.zipcode
@@ -493,7 +476,8 @@ def read_job_postings_json():
     # Load the file path of the local database
     database = env_Shi.database
     # Create the file name
-    initials = job_title_initials()
+    print("Enter the INITIALS of the job title:")
+    initials = input()
     file_name = 'df_' + initials + '_tx_prepared_backup.json'
     # Read the JSON file into a pandas dataframe
     df = pd.read_json(f'{database}{file_name}')
