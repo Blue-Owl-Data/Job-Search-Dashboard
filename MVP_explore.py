@@ -5,7 +5,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # NLP Libraries
+import re
 import nltk
+
+# AWS Librareis
+import boto3
 
 ############################################ Helper Functions ####################################################
 def words_variables(df):
@@ -42,8 +46,9 @@ def everygram_frequency(d_words, max_len=3):
 
 def top_skills(df, k, library, library_type):
     '''
-    This function accepts a prepared dataframe with the job descriptioins, a positive integer k, and 
-    a library of skills then returns a dataframe containing the top k skills needed .
+    This function accepts a prepared dataframe with the job descriptioins, a positive integer k, a library of skills, 
+    and the type of library then returns a dataframe containing the top k skills needed. In addition, it provides
+    the option to save the datafrme as JSON file and upload to the AWS Bucket additionaljobinfo.
     '''
     # Create a string of all words that appear in the job description
     dic = words_variables(df)
@@ -62,4 +67,16 @@ def top_skills(df, k, library, library_type):
     df_skills.reset_index(inplace=True)
     # Rename the column name
     df_skills.rename(columns={'index': f'top{k}_{library_type}_skills'}, inplace=True)
+    # Provide the option to save the dataframe as the JSON
+    print("Do you want to save the dataframe as JSON and upload to AWS? (Y/N)")
+    save_file = input()
+    if save_file == "Y":
+        print("Enter the INITIALS of the job title:")
+        initials = input()
+        file_name = f"{initials}_top{k}_{library_type}_skills.json"
+        df_skills.head(k).to_json(file_name, orient='records')
+        s3 = boto3.resource('s3')
+        s3.Bucket("additionaljobinfo").upload_file(file_name, file_name)
+    elif save_file == "N":
+        print("The dataframe has NOT been saved.")
     return df_skills.head(k)
