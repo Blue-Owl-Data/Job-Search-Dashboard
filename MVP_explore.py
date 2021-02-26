@@ -70,13 +70,58 @@ def top_skills(df, k, library, library_type):
     # Provide the option to save the dataframe as the JSON
     print("Do you want to save the dataframe as JSON and upload to AWS? (Y/N)")
     save_file = input()
-    if save_file == "Y":
+    if save_file == "Y" or save_file == "y":
         print("Enter the INITIALS of the job title:")
         initials = input()
         file_name = f"{initials}_top{k}_{library_type}_skills.json"
         df_skills.head(k).to_json(file_name, orient='records')
         s3 = boto3.resource('s3')
         s3.Bucket("additionaljobinfo").upload_file(file_name, file_name)
-    elif save_file == "N":
+    elif save_file == "N" or save_file == 'n':
         print("The dataframe has NOT been saved.")
     return df_skills.head(k)
+
+def add_skill_frequency(df, df_top):
+    '''
+    This function accepts the dataframe of prepared job postings and the dataframe of the top k skills
+    and adds the frequencies of the skills in each observation.
+    '''
+    # Reset the index of the df
+    df_copy = df.reset_index()
+    # Create a list of the top skills
+    skill_list = df_top.iloc[:, 0].to_list()
+    # Create an empty dictionary to hold the frequency of the skill in each observation
+    dic_frequency = {}
+    # Loop through the list of skills to compute its frequency in each observation
+    for skill in skill_list:
+        list_frequency = []
+        for string in df_copy.clean.values:
+            matches = re.findall(f" {skill} ", string)
+            frequency = len(matches)
+            list_frequency.append(frequency)
+        dic_frequency[skill]=list_frequency    
+    # Convert the dictionary into the dataframe
+    df_frequency = pd.DataFrame(dic_frequency)
+    # Add the frequencies of the top skills to the original dataframe
+    df_copy = pd.concat([df_copy, df_frequency], axis=1)
+    # Reset the date as the index
+    df_copy = df_copy.set_index('date')
+    return df_copy
+
+def plot_top_skill_ts(df, df_top):
+    '''
+    This function accetps the dataframe of preapred job postings with the frequencies of the skills
+    and plot how popular each skill changes over time. 
+    '''
+    # Set up the size of the plot
+    plt.figure(figsize=(12, 8))
+    # Create a list of the top skills
+    skill_list = df_top.iloc[:, 0].to_list()
+    # Resample the dataset by week and plot the mean of the frequency of each skill per job posting
+    for skill in skill_list:
+        df.resample('W')[skill].mean().plot(label=f'{skill} Weekly')
+    
+    # Name the plot
+    plt.title("How Popular the Top 5 Skills Are Over Time", fontweight='bold')
+    # Position the legend
+    plt.legend(bbox_to_anchor=(1, 1))
