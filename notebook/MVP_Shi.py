@@ -1,6 +1,7 @@
 # General Libraries
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Web Scraping Libraries
 import requests
@@ -351,7 +352,7 @@ def compute_post_date(df):
     post_date = []
     # For loop the column post_age and convert the values to date
     for age in df.post_age:
-        if age == 'Just posted' or == 'Today':
+        if age == 'Just posted' or age == 'Today':
             date = datetime.date.today()
             post_date.append(date)
         else:
@@ -730,7 +731,7 @@ def plot_top_skill_ts(df, df_top):
     # Set up the size of the plot
     plt.figure(figsize=(11, 8))
     # Create a list of the top skills
-    skill_list = df_ds_top_tech.iloc[:, 0].to_list()
+    skill_list = df_top.iloc[:, 0].to_list()
     # Resample the dataset by week and plot the mean of the frequency of each skill per job posting
     for skill in skill_list:
         df.resample('W')[skill].mean().plot(label=f'{skill} Weekly')
