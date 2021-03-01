@@ -415,7 +415,8 @@ def clean_job_title(title):
 
 def daily_update(df_new):
     '''
-    This function updates job posts by adding the daily acquring of job posts in TX. 
+    This function updates and prepares the job posts by adding daily new job postings 
+    and save as JSON file. 
     '''
     # Load the job posts based on the inputted job title
     database = env_Shi.database
@@ -437,21 +438,22 @@ def daily_update(df_new):
     num_new_jobs = df.shape[0] - num_jobs
     print("New Jobs of Posted Today: ", num_new_jobs)
     
-    # Used to be a seperate function `prepare_job_posts_indeed()`
     # Re-Load the dataset
     df = pd.read_csv(f"{database}df_{initials}_tx_backup.csv")
     # Create columns of city, state, and zipcode
     location = df.location.str.split(', ', expand=True)
     location.columns = ['city', 'zipcode']
-    location.city = location.city.apply(lambda i: 0 if i == 'United States' else i)
-    location.city = location.city.apply(lambda i: 0 if i == 'Texas' else i)
+    location.city = location.city.apply(lambda i: 'Remote' if i == 'United States' else i)
+    location.city = location.city.apply(lambda i: 'Remote' if i == 'Texas' else i)
     location.zipcode = location.zipcode.apply(lambda i: 0 if re.findall(r"(\d+)", str(i)) == [] 
                                               else re.findall(r"(\d+)", str(i))[0])
     df['city'] = location.city
     df['state'] = 'TX'
     df['zipcode'] = location.zipcode
-    # Replace the missing values in the company rating with 0
-    df.company_rating = df.company_rating.apply(lambda i: 0 if i == 'missing' else i)
+    # Replace the missing values in the company rating with the mean
+    df.company_rating = df.company_rating.replace('missing', np.NaN).astype(float)
+    mean_rating = df.company_rating.mean()
+    df.company_rating.fillna(mean_rating, inplace=True)
     # Clean the text in the job description
     df = MVP_Bojado.prep_job_description_data(df, 'job_description')
     # Clean the job title
@@ -459,8 +461,7 @@ def daily_update(df_new):
     # Drop the redundant columns post_age and location
     redundant_cols = ['post_age', 'location', 'tokenized', 'stemmed', 'lemmatized']
     df = df.drop(columns=redundant_cols)
-    # Alther the data type of company_rating and zipcode
-    df.company_rating = df.company_rating.apply(lambda i: float(i))
+    # Alther the data type of zipcode
     df.zipcode = df.zipcode.apply(lambda i: int(i))
     # Save a JSON version of the prepared data
     df.to_json(f"{database}df_{initials}_tx_prepared_backup.json", orient='records')
