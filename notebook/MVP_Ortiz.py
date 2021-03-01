@@ -2,6 +2,13 @@ import pandas as pd
 import requests
 import os
 
+# Geospatial Libraries
+import geopandas as gpd
+import geopy
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+import folium
+
 ###################### REST API Functions ######################
 def base_url():
     '''
@@ -118,3 +125,97 @@ def check_local_cache(data):
         return pd.read_csv(file_name, index_col=False)
     else:
         return False
+
+###################### Geospacial Functions ######################
+def get_geodata(df, credentials="Blue-Owl-Data"):
+    '''
+    This function accepts a dataframe of job postings that has
+    the column names: 'city_state' where the values are Example: "Austin, Texas".
+    
+    Returns a UNIQUE dataframe of each (city, state):
+    'city_state' : City and state where the job is located. Example: "Austin, Texas"
+    'latitude'   : Latitude coordinate of the city
+    'longitude'  : Longitude coordinate of the city
+    
+    Dependency Requirements:
+    import geopy
+    from geopy.geocoders import Nominatim
+    from geopy.extra.rate_limiter import RateLimiter
+    
+    $ pip install geopandas
+    
+    
+    Parameters
+    ----------
+    df : pandas.core.DataFrame()
+    
+    credentials : str, default "Blue-Owl-Data"
+        Name of an application needed to request data from
+        OpenStreetMap.
+        
+    Returns
+    -------
+    df_coordinates : pandas.core.DataFrame() 
+    '''
+    # Create a User-Agent name to use geopy
+    geolocator = Nominatim(user_agent=credentials)
+    # Wrap the goelocator.geocode function in a RateLimiter function to
+    # pause between API calls.
+    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1/20)
+
+    # Create a Series of unique (city, state) combinations.
+    city_states = df.city_state.unique()
+
+    # Loop through each (city, state) and create a geocode object
+    geodata = [geocode(location, language="en") for location in city_states]
+
+    # Loop through each geocode object and extract the latitude and longitude.
+    latitudes =  [city.latitude for city in geodata]
+    longitudes =  [city.longitude for city in geodata]
+    
+    # Create a dataframe to store the geodata of each location
+    df_coordinates = pd.DataFrame({'city_state' : city_states,
+                                   'latitude' : latitudes,
+                                   'longitude' : longitudes})
+    
+    return df_coordinates
+    
+    
+def add_coordinates(df):
+    '''
+    This function accepts a dataframe of job postings that have
+    the column names: 'city' and 'state'.
+    
+    Returns the original dataframe with new columns:
+    'city_state' : City and state where the job is located. Example: "Austin, Texas"
+    'latitude'   : Latitude coordinate of the city
+    'longitude'  : Longitude coordinate of the city
+    
+    Dependency Requirements:
+    import geopy
+    from geopy.geocoders import Nominatim
+    from geopy.extra.rate_limiter import RateLimiter
+    
+    $ pip install geopandas
+    
+    
+    Parameters
+    ----------
+    df : pandas.core.DataFrame()
+        
+    Returns
+    -------
+    df_updated : pandas.core.DataFrame() 
+    '''
+    # Create a new column called 'city_state' that contains the
+    # city, state as a string. Example: "Dallas, Texas"
+    df = df.assign(
+        # Cast 'city' explicitly to a string datatype. There are
+        # a few job postings without a city, where city == 0
+        city_state = df['city'].astype('str') + ', ' + df['state']
+    )
+    
+    # Create a dataframe to store geodata of each location
+    df_geodata = get_geodata(df)
+    df_updated = df.merge(df_geodata)
+    return df_updated
