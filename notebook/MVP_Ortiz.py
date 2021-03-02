@@ -217,5 +217,5 @@ def add_coordinates(df):
     
     # Create a dataframe to store geodata of each location
     df_geodata = get_geodata(df)
-    df_updated = df.merge(df_geodata)
+    df_updated = df.merge(df_geodata, how='left', on='city_state')
     return df_updated
