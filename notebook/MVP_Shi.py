@@ -18,6 +18,9 @@ import datetime
 # NLP Libraries
 import nltk
 
+# AWS
+import boto3
+
 # Environment File
 import env_Shi
 
@@ -709,32 +712,58 @@ def top_skills_ds_v2(company, k):
     df_skills.sort_values(by=company, ascending=False, inplace=True)
     return df_skills.head(k)
 
-def add_skill_frequency(df, df_top):
+def top_skill_frequency(df, df_top):
     '''
-    This function accepts the dataframe of prepared job postings and the dataframe of the top k skills
-    and adds the frequencies of the skills in each observation.
+    This function accepts the dataframe of the prepared job postings and the top k skills and provides
+    three options: 
+    - to save the frequencies of the top skills over time as a JSON file and upload to AWS.
+    - to return a dataframe containing only the frequecies of the top skills over time.
+    - to add the frequencies of the top skills over time to the original dataframe
     '''
-    # Reset the index of the df
-    df_copy = df.reset_index()
-    # Create a list of the top skills
+    # Confirm the library type
+    print("Please confirm the type of the library: tech or soft or general")
+    library_type = input()
+    
+    # Create a list of the top k skills
     skill_list = df_top.iloc[:, 0].to_list()
+    
     # Create an empty dictionary to hold the frequency of the skill in each observation
-    dic_frequency = {}
+    dic_frequency = {}    
     # Loop through the list of skills to compute its frequency in each observation
     for skill in skill_list:
         list_frequency = []
-        for string in df_copy.clean.values:
+        for string in df.clean.values:
             matches = re.findall(f" {skill} ", string)
             frequency = len(matches)
             list_frequency.append(frequency)
-        dic_frequency[skill]=list_frequency    
-    # Convert the dictionary into the dataframe
-    df_frequency = pd.DataFrame(dic_frequency)
-    # Add the frequencies of the top skills to the original dataframe
-    df_copy = pd.concat([df_copy, df_frequency], axis=1)
-    # Reset the date as the index
-    df_copy = df_copy.set_index('date')
-    return df_copy
+        dic_frequency[skill]=list_frequency
+        
+    # Convert the dictionary into the dataframe and set the index the same as df
+    df_frequency = pd.DataFrame(dic_frequency, index=df.index)
+    
+    # Save as JSON file and upload to AWS
+    print("Do you want to save the dataframe as JSON and upload to AWS? (Y/N)")
+    answer = input()
+    if answer == "Y" or answer == 'y':
+        df_freq_copy = df_frequency.reset_index()
+        df_freq_copy.date = df_freq_copy.date.apply(lambda i: i.strftime("%Y-%m-%d"))
+        database = env_Shi.database
+        file_name = f"ds_top_{library_type}_ts.json"
+        df_freq_copy.to_json(f"{database}{file_name}", orient="records")
+        s3 = boto3.resource("s3")
+        s3.Bucket("additionaljobinfo").upload_file(f"{database}{file_name}", file_name)
+    elif answer == "N" or answer == 'n':
+        print("You can manually save it by yourself")
+        
+    # Merge two dataframe together
+    print("Do you want to merge the dataframes?")
+    answer = input()
+    if answer == "Y" or answer == 'y':
+        df_frequency = pd.concat([df, df_frequency], axis=1)
+    elif answer == "N" or answer == 'n':
+        print("You can manually merge it by yourself")
+    
+    return df_frequency
 
 def plot_top_skill_ts(df, df_top):
     '''
