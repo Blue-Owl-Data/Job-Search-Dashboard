@@ -719,9 +719,13 @@ def top_skill_frequency(df, df_top):
     - to save the frequencies of the top skills over time as a JSON file and upload to AWS.
     - to return a dataframe containing only the frequecies of the top skills over time.
     - to add the frequencies of the top skills over time to the original dataframe
+    - to save the merged dataframe as JSON file in the database. 
     '''
+    # Reminder
+    print("Please insure the date is in the right format")
+    
     # Confirm the library type
-    print("Please confirm the type of the library: tech or soft or general")
+    print("Please CONFIRM the type of the library: tech or soft or general")
     library_type = input()
     
     # Create a list of the top k skills
@@ -743,8 +747,8 @@ def top_skill_frequency(df, df_top):
     
     # Save as JSON file and upload to AWS
     print("Do you want to save the dataframe as JSON and upload to AWS? (Y/N)")
-    answer = input()
-    if answer == "Y" or answer == 'y':
+    save_option = input()
+    if save_option == "Y" or save_option == 'y':
         df_freq_copy = df_frequency.reset_index()
         df_freq_copy.date = df_freq_copy.date.apply(lambda i: i.strftime("%Y-%m-%d"))
         database = env_Shi.database
@@ -752,15 +756,28 @@ def top_skill_frequency(df, df_top):
         df_freq_copy.to_json(f"{database}{file_name}", orient="records")
         s3 = boto3.resource("s3")
         s3.Bucket("additionaljobinfo").upload_file(f"{database}{file_name}", file_name)
-    elif answer == "N" or answer == 'n':
+    elif save_option == "N" or save_option == 'n':
         print("You can manually save it by yourself")
         
     # Merge two dataframe together
-    print("Do you want to merge the dataframes?")
-    answer = input()
-    if answer == "Y" or answer == 'y':
+    print("Do you want to merge the dataframes? (Y/N)")
+    merge_option = input()
+    if merge_option == "Y" or merge_option == 'y':
         df_frequency = pd.concat([df, df_frequency], axis=1)
-    elif answer == "N" or answer == 'n':
+        
+        # Save the merged dataframe as JSON
+        print("Do you want to save the merged dataframe? (Y/N)")
+        save_option = input()
+        if save_option == 'Y' or save_option == 'y':
+            df_freq_copy = df_frequency.reset_index()
+            df_freq_copy.date = df_freq_copy.date.apply(lambda i: i.strftime("%Y-%m-%d"))
+            database = env_Shi.database
+            file_name = f"df_ds_tx_top_{library_type}_ts.json"
+            df_freq_copy.to_json(f"{database}{file_name}", orient="records")
+        elif save_option == 'N' or save_option == 'n':
+            print("You can manually save it by yourself")
+
+    elif merge_option == "N" or merge_option == 'n':
         print("You can manually merge it by yourself")
     
     return df_frequency
