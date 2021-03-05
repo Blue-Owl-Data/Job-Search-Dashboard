@@ -725,8 +725,12 @@ def top_skill_frequency(df, df_top):
     print("Please insure the date is in the right format")
     
     # Confirm the library type
-    print("Please CONFIRM the type of the library: tech or soft or general")
+    print("Confirm TYPE of library: tech or soft or general")
     library_type = input()
+
+    # Confirm the job title
+    print("Enter the INITIALS of the job title:")
+    initials = input()
     
     # Create a list of the top k skills
     skill_list = df_top.iloc[:, 0].to_list()
@@ -752,7 +756,7 @@ def top_skill_frequency(df, df_top):
         df_freq_copy = df_frequency.reset_index()
         df_freq_copy.date = df_freq_copy.date.apply(lambda i: i.strftime("%Y-%m-%d"))
         database = env_Shi.database
-        file_name = f"ds_top_{library_type}_ts.json"
+        file_name = f"{initials}_top_{library_type}_ts.json"
         df_freq_copy.to_json(f"{database}{file_name}", orient="records")
         s3 = boto3.resource("s3")
         s3.Bucket("additionaljobinfo").upload_file(f"{database}{file_name}", file_name)
@@ -772,7 +776,7 @@ def top_skill_frequency(df, df_top):
             df_freq_copy = df_frequency.reset_index()
             df_freq_copy.date = df_freq_copy.date.apply(lambda i: i.strftime("%Y-%m-%d"))
             database = env_Shi.database
-            file_name = f"df_ds_tx_top_{library_type}_ts.json"
+            file_name = f"df_{initials}_tx_top_{library_type}_ts.json"
             df_freq_copy.to_json(f"{database}{file_name}", orient="records")
         elif save_option == 'N' or save_option == 'n':
             print("You can manually save it by yourself")
@@ -802,7 +806,7 @@ def plot_top_skill_ts(df, df_top):
 
 ################################################## Skill Libraries ########################################################
 
-ds_tech_library = ['python','sql','pandas','numpy','matplotlib','scikit learn','scikitlearn','spark','hadoop',
+library_ds_tech = ['python','sql','pandas','numpy','matplotlib','scikit learn','scikitlearn','spark','hadoop',
                 'aws','amazon web services','azure','microsoft word', 'microsoft excel','excel','tableau',
                 'tensor flow','pytorch','hive','impala','matlab','etl','statistics','exploration',
                 'extraction','data wrangling','math','machine learning','data visualization','java','js',
@@ -813,12 +817,12 @@ ds_tech_library = ['python','sql','pandas','numpy','matplotlib','scikit learn','
                 'pytorch','computer vision', 'deep neural networks','neural networks','amazon web services',
                 'natural language processing','extract,transform,load','mysql','structured query language']
 
-ds_soft_library = ['critical thinking','communication','problem solving','teamwork','ethics','business acumen',
+library_ds_soft = ['critical thinking','communication','problem solving','teamwork','ethics','business acumen',
                 'interpersonal skills','curiosity','storytelling','adaptability','team player','collaboration',
                 'time management','leadership','domain knowledge','creativity','decision making',
                 'verbal communication','written communication','teamwork']
 
-ds_general_library = ['python','sql','pandas','numpy','matplotlib','scikit learn','scikitlearn','spark','hadoop',
+library_ds_general = ['python','sql','pandas','numpy','matplotlib','scikit learn','scikitlearn','spark','hadoop',
                 'aws','amazon web services','azure','microsoft word', 'microsoft excel','excel','tableau',
                 'tensor flow','pytorch','hive','impala','matlab','etl','statistics','exploration',
                 'extraction','data wrangling','math','machine learning','data visualization','java','js',
@@ -833,19 +837,19 @@ ds_general_library = ['python','sql','pandas','numpy','matplotlib','scikit learn
                 'time management','leadership','domain knowledge','creativity','decision making',
                 'verbal communication','written communication','teamwork']
 
-wd_tech_library = ['html','css','javascript','debugging','git','github','libraries','frameworks','publishing web site',
+library_wd_tech = ['html','css','javascript','debugging','git','github','libraries','frameworks','publishing web site',
                 'photoshop','bootstrap','jquery','search engine optimization','seo','basic graphic design','front end','back end',
                 'visual studio code','visual studio','figma','zeplin','sketch','gatspy','strapi','paint','canva','aws','azure',
                 'amazon web services','sql','mysql','nosql','node','node.js','js','json','api','google charts','d3','d3.js','react',
                 'angular','ember','vue','python','c','c++','ruby','ruby on rails','git','github','php','net','.net','java','c#',
                 'linux','go','gcp','troubleshooting','problem solving','ux','ui','ux/ui','cloud computing','netlify','net']
 
-wd_soft_library = ['critical thinking','communication','problem solving','teamwork','ethics','business acumen',
+library_wd_soft = ['critical thinking','communication','problem solving','teamwork','ethics','business acumen',
                 'interpersonal skills','curiosity','storytelling','adaptability','team player','collaboration',
                 'time management','leadership','domain knowledge','creativity','decision making',
                 'verbal communication','written communication','teamwork']
 
-wd_general_library = ['html','css','javascript','debugging','git','github','libraries','frameworks','publishing web site',
+library_wd_general = ['html','css','javascript','debugging','git','github','libraries','frameworks','publishing web site',
             'photoshop','bootstrap','jquery','search engine optimization','seo','basic graphic design','front end','back end',
             'visual studio code','visual studio','figma','zeplin','sketch','gatspy','strapi','paint','canva','aws','azure',
             'amazon web services','sql','mysql','nosql','node','node.js','js','json','api','google charts','d3','d3.js','react',
