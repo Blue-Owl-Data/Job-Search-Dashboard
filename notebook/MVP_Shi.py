@@ -842,7 +842,7 @@ library_wd_tech = ['html','css','javascript','debugging','git','github','librari
                 'visual studio code','visual studio','figma','zeplin','sketch','gatspy','strapi','paint','canva','aws','azure',
                 'amazon web services','sql','mysql','nosql','node','node.js','js','json','api','google charts','d3','d3.js','react',
                 'angular','ember','vue','python','c','c++','ruby','ruby on rails','git','github','php','net','.net','java','c#',
-                'linux','go','gcp','troubleshooting','problem solving','ux','ui','ux/ui','cloud computing','netlify','net']
+                'linux','go','gcp','troubleshooting','problem solving','ux','ui','ux/ui','cloud computing','netlify']
 
 library_wd_soft = ['critical thinking','communication','problem solving','teamwork','ethics','business acumen',
                 'interpersonal skills','curiosity','storytelling','adaptability','team player','collaboration',
@@ -854,7 +854,7 @@ library_wd_general = ['html','css','javascript','debugging','git','github','libr
             'visual studio code','visual studio','figma','zeplin','sketch','gatspy','strapi','paint','canva','aws','azure',
             'amazon web services','sql','mysql','nosql','node','node.js','js','json','api','google charts','d3','d3.js','react',
             'angular','ember','vue','python','c','c++','ruby','ruby on rails','git','github','php','net','.net','java','c#',
-            'linux','go','gcp','troubleshooting','problem solving','ux','ui','ux/ui','cloud computing','netlify','net''critical thinking',
+            'linux','go','gcp','troubleshooting','problem solving','ux','ui','ux/ui','cloud computing','netlify', 'critical thinking',
             'communication','problem solving','teamwork','ethics','business acumen','interpersonal skills','curiosity',
             'storytelling','adaptability','team player','collaboration','time management','leadership','domain knowledge',
             'creativity','decision making','verbal communication','written communication','teamwork']
