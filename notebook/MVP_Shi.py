@@ -820,7 +820,7 @@ library_ds_tech = ['python','sql','pandas','numpy','matplotlib','scikit learn','
 library_ds_soft = ['critical thinking','communication','problem solving','teamwork','ethics','business acumen',
                 'interpersonal skills','curiosity','storytelling','adaptability','team player','collaboration',
                 'time management','leadership','domain knowledge','creativity','decision making',
-                'verbal communication','written communication','teamwork']
+                'verbal communication','written communication']
 
 library_ds_general = ['python','sql','pandas','numpy','matplotlib','scikit learn','scikitlearn','spark','hadoop',
                 'aws','amazon web services','azure','microsoft word', 'microsoft excel','excel','tableau',
@@ -835,7 +835,7 @@ library_ds_general = ['python','sql','pandas','numpy','matplotlib','scikit learn
                 'critical thinking','communication','problem solving','teamwork','ethics','business acumen',
                 'interpersonal skills','curiosity','storytelling','adaptability','team player','collaboration',
                 'time management','leadership','domain knowledge','creativity','decision making',
-                'verbal communication','written communication','teamwork']
+                'verbal communication','written communication']
 
 library_wd_tech = ['html','css','javascript','debugging','git','github','libraries','frameworks','publishing web site',
                 'photoshop','bootstrap','jquery','search engine optimization','seo','basic graphic design','front end','back end',
@@ -847,7 +847,7 @@ library_wd_tech = ['html','css','javascript','debugging','git','github','librari
 library_wd_soft = ['critical thinking','communication','problem solving','teamwork','ethics','business acumen',
                 'interpersonal skills','curiosity','storytelling','adaptability','team player','collaboration',
                 'time management','leadership','domain knowledge','creativity','decision making',
-                'verbal communication','written communication','teamwork']
+                'verbal communication','written communication']
 
 library_wd_general = ['html','css','javascript','debugging','git','github','libraries','frameworks','publishing web site',
             'photoshop','bootstrap','jquery','search engine optimization','seo','basic graphic design','front end','back end',
@@ -857,4 +857,4 @@ library_wd_general = ['html','css','javascript','debugging','git','github','libr
             'linux','go','gcp','troubleshooting','problem solving','ux','ui','ux/ui','cloud computing','netlify', 'critical thinking',
             'communication','problem solving','teamwork','ethics','business acumen','interpersonal skills','curiosity',
             'storytelling','adaptability','team player','collaboration','time management','leadership','domain knowledge',
-            'creativity','decision making','verbal communication','written communication','teamwork']
+            'creativity','decision making','verbal communication','written communication']
